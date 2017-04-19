@@ -1,0 +1,11 @@
+# C extensions
+*.so
+
+# Silence: eclipse add remote project
+.project
+.pydevproject
+*~
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]

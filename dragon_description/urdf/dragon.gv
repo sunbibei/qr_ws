@@ -1,0 +1,59 @@
+digraph G {
+node [shape=box];
+"world" [label="world"];
+"body" [label="body"];
+"imu_link" [label="imu_link"];
+"left_back_upper" [label="left_back_upper"];
+"left_back_leg" [label="left_back_leg"];
+"left_back_shine" [label="left_back_shine"];
+"left_back_feet" [label="left_back_feet"];
+"left_front_upper" [label="left_front_upper"];
+"left_front_leg" [label="left_front_leg"];
+"left_front_shine" [label="left_front_shine"];
+"left_front_feet" [label="left_front_feet"];
+"right_back_upper" [label="right_back_upper"];
+"right_back_leg" [label="right_back_leg"];
+"right_back_shine" [label="right_back_shine"];
+"right_back_feet" [label="right_back_feet"];
+"right_front_upper" [label="right_front_upper"];
+"right_front_leg" [label="right_front_leg"];
+"right_front_shine" [label="right_front_shine"];
+"right_front_feet" [label="right_front_feet"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"world" -> "planar_joint" [label="xyz: 0 0 0.61 \nrpy: 0 -0 0"]
+"planar_joint" -> "body"
+"body" -> "imu_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"imu_joint" -> "imu_link"
+"body" -> "left_back_fixed" [label="xyz: -0.3 0.15 0.045 \nrpy: 0 -0 0"]
+"left_back_fixed" -> "left_back_upper"
+"left_back_upper" -> "left_back_hip" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"left_back_hip" -> "left_back_leg"
+"left_back_leg" -> "left_back_knee" [label="xyz: 0 0 -0.275 \nrpy: 0 -0 0"]
+"left_back_knee" -> "left_back_shine"
+"left_back_shine" -> "left_back_foot" [label="xyz: 0 0 -0.266 \nrpy: 0 -0 0"]
+"left_back_foot" -> "left_back_feet"
+"body" -> "left_front_fixed" [label="xyz: 0.25 0.135 -0.02 \nrpy: 0 -0 0"]
+"left_front_fixed" -> "left_front_upper"
+"left_front_upper" -> "left_front_hip" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"left_front_hip" -> "left_front_leg"
+"left_front_leg" -> "left_front_knee" [label="xyz: 0 0 -0.275 \nrpy: 0 -0 0"]
+"left_front_knee" -> "left_front_shine"
+"left_front_shine" -> "left_front_foot" [label="xyz: 0 0 -0.226 \nrpy: 0 -0 0"]
+"left_front_foot" -> "left_front_feet"
+"body" -> "right_back_fixed" [label="xyz: -0.3 -0.15 0.045 \nrpy: 0 -0 0"]
+"right_back_fixed" -> "right_back_upper"
+"right_back_upper" -> "right_back_hip" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"right_back_hip" -> "right_back_leg"
+"right_back_leg" -> "right_back_knee" [label="xyz: 0 0 -0.275 \nrpy: 0 -0 0"]
+"right_back_knee" -> "right_back_shine"
+"right_back_shine" -> "right_back_foot" [label="xyz: 0 0 -0.266 \nrpy: 0 -0 0"]
+"right_back_foot" -> "right_back_feet"
+"body" -> "right_front_fixed" [label="xyz: 0.25 -0.135 -0.02 \nrpy: 0 -0 0"]
+"right_front_fixed" -> "right_front_upper"
+"right_front_upper" -> "right_front_hip" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"right_front_hip" -> "right_front_leg"
+"right_front_leg" -> "right_front_knee" [label="xyz: 0 0 -0.275 \nrpy: 0 -0 0"]
+"right_front_knee" -> "right_front_shine"
+"right_front_shine" -> "right_front_foot" [label="xyz: 0 0 -0.226 \nrpy: 0 -0 0"]
+"right_front_foot" -> "right_front_feet"
+}
