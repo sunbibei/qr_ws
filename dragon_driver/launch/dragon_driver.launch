@@ -3,7 +3,7 @@
   <arg name="debug" default="True"/>
   <arg name="use_ros_control" default="True"/>
   <arg name="rt_frequency" default="50.0"/>
-  <arg name="ctrl_loop_frequency" default="2.5"/>
+  <arg name="ctrl_loop_frequency" default="20"/>
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="5.0"/>
   <arg name="prefix" default="" />
