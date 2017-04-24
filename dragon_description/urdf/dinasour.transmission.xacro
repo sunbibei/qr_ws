@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dinasour">
+
+	<!--*************************************************************-->
+	<!--*********************  MACRO CONSTS  ************************-->
+	<!--*************************************************************-->
+
+	<xacro:property name="Mech_Reduction" value="1" />
+	<xacro:property name="Hard_Interface" value="PositionJointInterface" />
+	<xacro:property name="Trans_Type"     value="transmission_interface/SimpleTransmission" />
+
+	<!--***************************************************************-->
+	<!--*********************  MACRO TEMPLATES  ***********************-->
+	<!--***************************************************************-->
+
+	<xacro:macro name="Trans" params="Name">
+		<transmission name="${Name}_trans">
+			<type>${Trans_Type}</type>
+			<joint name="${Name}">
+				<hardwareInterface>${Hard_Interface}</hardwareInterface>
+			</joint>
+			<actuator name="${Name}_motor">
+				<hardwareInterface>${Hard_Interface}</hardwareInterface>
+				<mechanicalReduction>"${Mech_Reduction}"</mechanicalReduction>
+			</actuator>
+		</transmission>
+	</xacro:macro>
+
+	<xacro:Trans Name="left_front_pitch" />
+	<xacro:Trans Name="left_front_hip" />
+	<xacro:Trans Name="left_front_knee" />
+
+	<xacro:Trans Name="right_front_pitch" />
+	<xacro:Trans Name="right_front_hip" />
+	<xacro:Trans Name="right_front_knee" />
+
+	<xacro:Trans Name="left_back_pitch" />
+	<xacro:Trans Name="left_back_hip" />
+	<xacro:Trans Name="left_back_knee" />
+
+	<xacro:Trans Name="right_back_pitch" />
+	<xacro:Trans Name="right_back_hip" />
+	<xacro:Trans Name="right_back_knee" />
+
+</robot>

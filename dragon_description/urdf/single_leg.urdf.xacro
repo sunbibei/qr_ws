@@ -1,65 +1,161 @@
 <?xml version="1.0"?>
-<robot name="single_leg" xmlns:xacro="http://www.ros.org/wiki/xacro" >
 
-  <!-- common stuff -->
-  <xacro:include filename="$(find dragon_description)/urdf/common.gazebo.xacro" />
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dragon">
 
-  <!-- single leg XACRO -->
-  <xacro:include filename="$(find dragon_description)/urdf/leg.urdf.xacro" />
+	<!--*************************************************************-->
+	<!--*********************  MACRO CONSTS  ************************-->
+	<!--*************************************************************-->
+	<xacro:property name="Damping"       value="0" />
+	<xacro:property name="Friction"      value="0.1" />
+	<xacro:property name="PI"            value="3.141592698" />
+	<xacro:property name="Effort_Limit"  value="50" />
+	<xacro:property name="Velocity_Limit" value="1" />
 
-  <link name="world" />
+	<xacro:property name="BODY_X"        value="0.8" />
+	<xacro:property name="BODY_Y"        value="0.5" />
+	<xacro:property name="BODY_Z"        value="0.1" />
+	<xacro:property name="SHOD_R"        value="0.04" />
+	<xacro:property name="SHOD_L"        value="0.04" />
+	<xacro:property name="LEG_R"        value="0.025" />
+	<xacro:property name="LEG_L"        value="0.273" />
+	<xacro:property name="SHE_R"        value="0.02" />
+	<xacro:property name="SHE_L"        value="0.225" />
 
-  <joint name="world_to_base_link_joint" type="fixed" >
-    <parent link="world" />
-    <child link="base_link" />
-  </joint>
-  <link name="base_link">
-    <visual>
-      <geometry>
-        <sphere radius="0.0001"/>
-      </geometry>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-    </visual>
-    <collision>
-      <geometry>
-        <sphere radius="0.0001"/>
-      </geometry>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-    </collision>
-    <inertial>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <mass value="0.0001"/>
-      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
-    </inertial>
-  </link>
 
-	<!-- single leg -->
-  <xacro:leg prefix=""/>
+	<!--***************************************************************-->
+	<!--*********************  MACRO TEMPLATES  ***********************-->
+	<!--***************************************************************-->
+	<!-- Body MACRO -->
+	<xacro:macro name="Body" params="Name Mass">
+		<link name="${Name}">
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<box size="${BODY_X} ${BODY_Y} ${BODY_Z}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<box size="${BODY_X} ${BODY_Y} ${BODY_Z}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<mass value="${Mass}"/>
+				<inertia ixx="${1/12*Mass*(BODY_Y*BODY_Y+BODY_Z*BODY_Z)}" ixy="0" ixz="0" iyy="${1/12*Mass*(BODY_X*BODY_X+BODY_Z*BODY_Z)}" iyz="0" izz="${1/12*Mass*(BODY_Y*BODY_Y+BODY_X*BODY_X)}"/>
+			</inertial>
+		</link>
+	</xacro:macro>
 
-  <!-- The joint between the base of single leg and the world -->
-  <joint name="base_link_to_base_joint" type="prismatic">
-    <parent link="base_link" />
-    <child link = "leg_base" />
-    <origin xyz="0.0 0.0 0.7" rpy="0.0 0.0 0.0" />
-    <limit lower="-0.7" upper="1.0" effort="100" velocity="100"/>
-    <axis xyz="0 0 1" />
-  </joint>
-  
-  <!--color define-->
-  <gazebo reference="base_link">
-    <material>Gazebo/Green</material>
-  </gazebo>
-  <gazebo reference="leg_base">
-    <material>Gazebo/Turquoise</material>
-  </gazebo>
-  <gazebo reference="thigh">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-  <gazebo reference="shank">
-    <material>Gazebo/Yellow</material>
-  </gazebo>
-  <gazebo reference="foot">
-    <material>Gazebo/Red</material>
-  </gazebo>
+	<!-- Shoulder MACRO -->
+	<xacro:macro name="Shoulder" params="Name Mass Parent_Link X_Dir Y_Dir">
+		<link name="${Name}_shoulder">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 ${PI/2} 0"/>
+				<geometry>
+					<cylinder radius="${SHOD_R}" length="${SHOD_L}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 ${PI/2} 0"/>
+				<geometry>
+					<cylinder radius="${SHOD_R}" length="${SHOD_L}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="0 0 0" rpy="0 ${PI/2} 0"/>
+				<mass value="${Mass}"/>
+				<inertia ixx="${1/12*Mass*(3*SHOD_R*SHOD_R+SHOD_L*SHOD_L)}" ixy="0" ixz="0" iyy="${1/12*Mass*(3*SHOD_R*SHOD_R+SHOD_L*SHOD_L)}" iyz="0" izz="${1/2*Mass*SHOD_R*SHOD_R}"/>
+			</inertial>
+		</link>
+		<joint name="${Name}_pitch" type="revolute">
+			<origin xyz="${X_Dir*(BODY_X/2-SHOD_L/2)} ${Y_Dir*(BODY_Y/2-SHOD_R)} ${-SHOD_R*2}" rpy="0 0 0"/>
+			<parent link="${Parent_Link}"/>
+			<child link="${Name}_shoulder"/>
+			<axis xyz="1 0 0"/>
+			<dynamics damping="${Damping}" friction="${Friction}"/>
+			<limit lower="-1" upper="1" effort="${Effort_Limit}" velocity="${Velocity_Limit}"/>
+		</joint>
+	</xacro:macro>
+
+
+	<!-- LEG MACRO -->
+	<xacro:macro name="LEG" params="Name Mass Limit_Up Limit_Low">
+		<link name="${Name}_leg">
+			<visual>
+				<origin xyz="0 0 ${-LEG_L/2}" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="${LEG_R}" length="${LEG_L}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 ${-LEG_L/2}" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="${LEG_R}" length="${LEG_L/2}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="0 0 ${-LEG_L/2}" rpy="0 0 0"/>
+				<mass value="${Mass}"/>
+				<inertia ixx="${1/12*Mass*(3*LEG_R*LEG_R+LEG_L*LEG_L)}" ixy="0" ixz="0" iyy="${1/12*Mass*(3*LEG_R*LEG_R+LEG_L*LEG_L)}" iyz="0" izz="${1/2*Mass*LEG_R*LEG_R}"/>
+			</inertial>
+		</link>
+		<joint name="${Name}_hip" type="revolute">
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<parent link="${Name}_shoulder"/>
+			<child link="${Name}_leg"/>
+			<axis xyz="0 1 0"/>
+			<dynamics damping="${Damping}" friction="${Friction}"/>
+			<limit lower="${Limit_Low}" upper="${Limit_Up}" effort="${Effort_Limit}" velocity="${Velocity_Limit}"/>
+		</joint>
+	</xacro:macro>
+
+	<!-- SHINE MACRO -->
+	<xacro:macro name="SHINE" params="Name Mass Limit_Up Limit_Low">
+		<link name="${Name}_shine">
+			<visual>
+				<origin xyz="0 0 ${-SHE_L/2}" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="${SHE_R}" length="${SHE_L}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 ${-SHE_L/2}" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="${SHE_R}" length="${SHE_L}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="0 0 ${-SHE_L/2}" rpy="0 0 0"/>
+				<mass value="${Mass}"/>
+				<inertia ixx="${1/12*Mass*(3*SHE_R*SHE_R+SHE_L*SHE_L)}" ixy="0" ixz="0" iyy="${1/12*Mass*(3*SHE_R*SHE_R+SHE_L*SHE_L)}" iyz="0" izz="${1/2*Mass*SHE_R*SHE_R}"/>
+			</inertial>
+		</link>
+		<joint name="${Name}_knee" type="revolute">
+			<origin xyz="0 0 ${-LEG_L}" rpy="0 0 0"/>
+			<parent link="${Name}_leg"/>
+			<child link="${Name}_shine"/>
+			<axis xyz="0 1 0"/>
+			<dynamics damping="${Damping}" friction="${Friction}"/>
+			<limit lower="${Limit_Low}" upper="${ Limit_Up}" effort="${Effort_Limit}" velocity="${Velocity_Limit}"/>
+		</joint>
+	</xacro:macro>
+	<!--***************************************************************-->
+	<!--********  LINKS and JOINTS defined by MACRO TEMPLATES  ********-->
+	<!--***************************************************************-->
+	<xacro:Body Name="body" Mass="10"/>
+	<xacro:Shoulder Name="left_front"  Mass="1" Parent_Link="body" X_Dir = "1"  Y_Dir = "-1"/>
+
+	<xacro:LEG Name="left_front"   Mass="1" Limit_Up = "2" Limit_Low="0"/>
+
+	<xacro:SHINE Name="left_front"  Mass="1" Limit_Up = "0" Limit_Low="-2"/>
+
+	<link name="world"/>
+	<joint name="base_fixed" type="fixed">
+		<parent link="world"/>
+		<child link="body"/>
+	</joint>
 
 </robot>
