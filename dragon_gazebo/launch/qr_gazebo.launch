@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch> 
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">  
+    <arg name="world_name" value="worlds/empty.world"/>  
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+  
+  <!-- Load robot description -->
+  <include file="$(find dragon_description)/launch/spawn_dragon.launch" />
+  
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+ 
+</launch>
