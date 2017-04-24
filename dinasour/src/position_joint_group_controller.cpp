@@ -1,6 +1,6 @@
-#include "dragon_three_dof/position_joint_group_controller.h"
+#include "dinasour/position_joint_group_controller.h"
 
-namespace dragon_three_dof
+namespace dinasour
 {
 
 PositionJointGroupController::PositionJointGroupController()
@@ -9,7 +9,7 @@ PositionJointGroupController::PositionJointGroupController()
 }
 PositionJointGroupController::~PositionJointGroupController()
 {
-        sub_command_.shutdown();
+
 }
 /**************************************************************************
    Author: WangShanren
@@ -45,11 +45,14 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
                 joints_.push_back(robot->getHandle(*iter));
         }
 
-        commands_buffer_.writeFromNonRT(std::vector<double>(n_joints_, 0.0));
-        sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("/dragon/joint_command", 1,
-                                                                &PositionJointGroupController::commandCB, this);
+        joint_state_publisher_.reset( new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(n, "/dragon/joint_state", 1));
 
-        if(n_joints_== (DOF * LEG_NUM))
+        for(int i=0; i<DOF * LEG_NUM; i++)
+        {
+                commands.push_back(0);
+        }
+
+        if(n_joints_ == (DOF * LEG_NUM))
         {
                 std::cout<<"System Init Succeed!"<<std::endl;
         }
@@ -62,6 +65,10 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
 **************************************************************************/
 void PositionJointGroupController::starting(const ros::Time& time)
 {
+        for(unsigned int i=0; i<n_joints_; i++)
+        {
+                commands[i]=joints_[i].getPosition();
+        }
 }
 /**************************************************************************
    Author: WangShanren
@@ -124,7 +131,7 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
                                         Cog_adj = get_CoG_adj_vec(Desired_Foot_Pos,Leg_Order); //1 means left
                                         // std::cout<<"Case1:"<<"Desired_Foot_Pos:"<<Desired_Foot_Pos.x<<",  "<<Desired_Foot_Pos.y<<std::endl;
                                         // std::cout<<"Case1:"<<"Pos_start:"<<Pos_start.x<<",  "<<Pos_start.y<<std::endl;
-                                        // std::cout<<"case1"<<"COG:"<<Cog_adj.x<<",  "<<Cog_adj.y<<std::endl;
+                                        std::cout<<"case1"<<"COG:"<<Cog_adj.x<<",  "<<Cog_adj.y<<std::endl;
                                 }
                                 adj = get_stance_position(Cog_adj, Loop_Count);
                                 // std::cout<<"Loop_Count:"<<Loop_Count<<",adj:"<<adj.x<<",  "<<adj.y<<std::endl;
@@ -143,8 +150,8 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
                         {
                                 Loop_Count = 0;
                                 std::cout<<"Adjust CoG to right side Done!"<<std::endl;
-                                Time_Order = 1;
-                                Leg_Order = 2;
+                                Time_Order = 3;
+                                Leg_Order = 1;
                                 Pos_start = struct_copy(Foot_pos_ptr->lf_foot);
 
                         }
@@ -158,7 +165,7 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
                                         Cog_adj = get_CoG_adj_vec(Desired_Foot_Pos,Leg_Order); //1 means left
                                         // std::cout<<"Case2:"<<"Desired_Foot_Pos:"<<Desired_Foot_Pos.x<<",  "<<Desired_Foot_Pos.y<<std::endl;
                                         // std::cout<<"Case2:"<<"Pos_start:"<<Pos_start.x<<",  "<<Pos_start.y<<std::endl;
-                                        // std::cout<<"Case2:"<<"COG:"<<Cog_adj.x<<",  "<<Cog_adj.y<<std::endl;
+                                        std::cout<<"Case2:"<<"COG:"<<Cog_adj.x<<",  "<<Cog_adj.y<<std::endl;
                                 }
                                 adj = get_stance_position(Cog_adj, Loop_Count);
                                 // std::cout<<"Loop_Count:"<<Loop_Count<<",adj:"<<adj.x<<",  "<<adj.y<<std::endl;
@@ -176,20 +183,20 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
                         {
                                 Loop_Count = 0;
                                 std::cout<<"Adjust CoG to left side Done!"<<std::endl;
-                                Time_Order = 1;
-                                Leg_Order = 1;
+                                Time_Order = 3;
+                                Leg_Order = 2;
                                 Pos_start = struct_copy(Foot_pos_ptr->rf_foot);
 
                         }
                         break;
-                // case 3:
-                //         Pos_start = struct_copy(Foot_pos_ptr->lb_foot);
-                //         Time_Order = 3;
-                //         break;
-                // case 4:
-                //         Pos_start = struct_copy(Foot_pos_ptr->rb_foot);
-                //         Time_Order = 3;
-                //         break;
+                        case 3:
+                                Pos_start = struct_copy(Foot_pos_ptr->lb_foot);
+                                Time_Order = 3;
+                                break;
+                        case 4:
+                                Pos_start = struct_copy(Foot_pos_ptr->rb_foot);
+                                Time_Order = 3;
+                                break;
                 }
                 break;
         case 3: //swing leg
@@ -379,7 +386,7 @@ _Position PositionJointGroupController::get_stance_position(_Position Adj_vec, u
 **************************************************************************/
 void PositionJointGroupController::pose_init()
 {
-        double diff = (B_Leg_Length[0] + B_Leg_Length[1] + B_Leg_Length[2] - HEIGHT) / Update_Rate;
+        double diff = (Leg_Length[0] + Leg_Length[1] + Leg_Length[2] - HEIGHT) / Update_Rate;
         if(diff<0)
         {
                 ROS_ERROR("Error Height setting");
@@ -391,17 +398,7 @@ void PositionJointGroupController::pose_init()
 
         reverse_kinematics();
 }
-/**************************************************************************
-   Author: WangShanren
-   Date: 2017.2.23
-   Description: design Infinite State Machine, swing legs <---> quad move by changing joint Angle_ptr
-   Input: loop count
-   Output: none
-**************************************************************************/
-void PositionJointGroupController::ISM(unsigned int Loop_count)
-{
 
-}
 /**************************************************************************
    Author: WangShanren
    Date: 2017.2.21
@@ -413,50 +410,50 @@ void PositionJointGroupController::ISM(unsigned int Loop_count)
 **************************************************************************/
 void PositionJointGroupController::forward_kinematics()
 {
-        Foot_pos_ptr->lf_foot.x = Body_Par[0][0] + F_Leg_Length[1] * sin(Angle_ptr->lf_angle.hip)
-                                  + F_Leg_Length[2] * sin(Angle_ptr->lf_angle.hip + Angle_ptr->lf_angle.knee);
-        Foot_pos_ptr->lf_foot.y = Body_Par[0][1] + F_Leg_Length[0] * sin(Angle_ptr->lf_angle.pitch)
-                                  + F_Leg_Length[1] * sin(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip)
-                                  + F_Leg_Length[2] * sin(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip
-                                                                                           + Angle_ptr->lf_angle.knee);
-        Foot_pos_ptr->lf_foot.z = Body_Par[0][2] - F_Leg_Length[0] * cos(Angle_ptr->lf_angle.pitch)
-                                  - F_Leg_Length[1] * cos(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip)
-                                  - F_Leg_Length[2] * cos(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip
-                                                                                           + Angle_ptr->lf_angle.knee);
+        Foot_pos_ptr->lf_foot.x = Body_Par[0][0] + Leg_Length[1] * sin(Angle_ptr->lf_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->lf_angle.hip + Angle_ptr->lf_angle.knee);
+        Foot_pos_ptr->lf_foot.y = Body_Par[0][1] + Leg_Length[0] * sin(Angle_ptr->lf_angle.pitch)
+                                  + Leg_Length[1] * sin(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip
+                                                                                         + Angle_ptr->lf_angle.knee);
+        Foot_pos_ptr->lf_foot.z = Body_Par[0][2] - Leg_Length[0] * cos(Angle_ptr->lf_angle.pitch)
+                                  - Leg_Length[1] * cos(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip)
+                                  - Leg_Length[2] * cos(Angle_ptr->lf_angle.pitch) * cos(Angle_ptr->lf_angle.hip
+                                                                                         + Angle_ptr->lf_angle.knee);
 
 
-        Foot_pos_ptr->rf_foot.x = Body_Par[1][0] + F_Leg_Length[1] * sin(Angle_ptr->rf_angle.hip)
-                                  + F_Leg_Length[2] * sin(Angle_ptr->rf_angle.hip + Angle_ptr->rf_angle.knee);
-        Foot_pos_ptr->rf_foot.y = Body_Par[1][1] + F_Leg_Length[0] * sin(Angle_ptr->rf_angle.pitch)
-                                  + F_Leg_Length[1] * sin(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip)
-                                  + F_Leg_Length[2] * sin(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip
-                                                                                           + Angle_ptr->rf_angle.knee);
-        Foot_pos_ptr->rf_foot.z = Body_Par[1][2] - F_Leg_Length[0] * cos(Angle_ptr->rf_angle.pitch)
-                                  - F_Leg_Length[1] * cos(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip)
-                                  - F_Leg_Length[2] * cos(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip
-                                                                                           + Angle_ptr->rf_angle.knee);
+        Foot_pos_ptr->rf_foot.x = Body_Par[1][0] + Leg_Length[1] * sin(Angle_ptr->rf_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->rf_angle.hip + Angle_ptr->rf_angle.knee);
+        Foot_pos_ptr->rf_foot.y = Body_Par[1][1] + Leg_Length[0] * sin(Angle_ptr->rf_angle.pitch)
+                                  + Leg_Length[1] * sin(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip
+                                                                                         + Angle_ptr->rf_angle.knee);
+        Foot_pos_ptr->rf_foot.z = Body_Par[1][2] - Leg_Length[0] * cos(Angle_ptr->rf_angle.pitch)
+                                  - Leg_Length[1] * cos(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip)
+                                  - Leg_Length[2] * cos(Angle_ptr->rf_angle.pitch) * cos(Angle_ptr->rf_angle.hip
+                                                                                         + Angle_ptr->rf_angle.knee);
 
 
-        Foot_pos_ptr->lb_foot.x = Body_Par[2][0] + B_Leg_Length[1] * sin(Angle_ptr->lb_angle.hip)
-                                  + B_Leg_Length[2] * sin(Angle_ptr->lb_angle.hip + Angle_ptr->lb_angle.knee);
-        Foot_pos_ptr->lb_foot.y = Body_Par[2][1] + B_Leg_Length[0] * sin(Angle_ptr->lb_angle.pitch)
-                                  + B_Leg_Length[1] * sin(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip)
-                                  + B_Leg_Length[2] * sin(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip
-                                                                                           + Angle_ptr->lb_angle.knee);
-        Foot_pos_ptr->lb_foot.z = Body_Par[2][2] - B_Leg_Length[0] * cos(Angle_ptr->lb_angle.pitch)
-                                  - B_Leg_Length[1] * cos(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip)
-                                  - B_Leg_Length[2] * cos(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip
-                                                                                           + Angle_ptr->lb_angle.knee);
+        Foot_pos_ptr->lb_foot.x = Body_Par[2][0] + Leg_Length[1] * sin(Angle_ptr->lb_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->lb_angle.hip + Angle_ptr->lb_angle.knee);
+        Foot_pos_ptr->lb_foot.y = Body_Par[2][1] + Leg_Length[0] * sin(Angle_ptr->lb_angle.pitch)
+                                  + Leg_Length[1] * sin(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip
+                                                                                         + Angle_ptr->lb_angle.knee);
+        Foot_pos_ptr->lb_foot.z = Body_Par[2][2] - Leg_Length[0] * cos(Angle_ptr->lb_angle.pitch)
+                                  - Leg_Length[1] * cos(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip)
+                                  - Leg_Length[2] * cos(Angle_ptr->lb_angle.pitch) * cos(Angle_ptr->lb_angle.hip
+                                                                                         + Angle_ptr->lb_angle.knee);
 
 
-        Foot_pos_ptr->rb_foot.x = Body_Par[3][0] + B_Leg_Length[1] * sin(Angle_ptr->rb_angle.hip)
-                                  + B_Leg_Length[2] * sin(Angle_ptr->rb_angle.hip + Angle_ptr->rb_angle.knee);
-        Foot_pos_ptr->rb_foot.y = Body_Par[3][1] + B_Leg_Length[0] * sin(Angle_ptr->rb_angle.pitch)
-                                  + B_Leg_Length[1] * sin(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip)
-                                  + B_Leg_Length[2] * sin(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip + Angle_ptr->rb_angle.knee);
-        Foot_pos_ptr->rb_foot.z = Body_Par[3][2] - B_Leg_Length[0] * cos(Angle_ptr->rb_angle.pitch)
-                                  - B_Leg_Length[1] * cos(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip)
-                                  - B_Leg_Length[2] * cos(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip + Angle_ptr->rb_angle.knee);
+        Foot_pos_ptr->rb_foot.x = Body_Par[3][0] + Leg_Length[1] * sin(Angle_ptr->rb_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->rb_angle.hip + Angle_ptr->rb_angle.knee);
+        Foot_pos_ptr->rb_foot.y = Body_Par[3][1] + Leg_Length[0] * sin(Angle_ptr->rb_angle.pitch)
+                                  + Leg_Length[1] * sin(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip)
+                                  + Leg_Length[2] * sin(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip + Angle_ptr->rb_angle.knee);
+        Foot_pos_ptr->rb_foot.z = Body_Par[3][2] - Leg_Length[0] * cos(Angle_ptr->rb_angle.pitch)
+                                  - Leg_Length[1] * cos(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip)
+                                  - Leg_Length[2] * cos(Angle_ptr->rb_angle.pitch) * cos(Angle_ptr->rb_angle.hip + Angle_ptr->rb_angle.knee);
 
 }
 /**************************************************************************
@@ -474,47 +471,47 @@ void PositionJointGroupController::reverse_kinematics()
         //front
         double Delte = Foot_pos_ptr->lf_foot.x - Body_Par[0][0];
         Angle_ptr->lf_angle.pitch = atan((Body_Par[0][1] - Foot_pos_ptr->lf_foot.y) / (Foot_pos_ptr->lf_foot.z - Body_Par[0][2]));
-        double Epsilon = F_Leg_Length[0] + Foot_pos_ptr->lf_foot.z * cos(Angle_ptr->lf_angle.pitch) - Body_Par[0][2] * cos(Angle_ptr->lf_angle.pitch)
+        double Epsilon = Leg_Length[0] + Foot_pos_ptr->lf_foot.z * cos(Angle_ptr->lf_angle.pitch) - Body_Par[0][2] * cos(Angle_ptr->lf_angle.pitch)
                          - Foot_pos_ptr->lf_foot.y * sin(Angle_ptr->lf_angle.pitch) + Body_Par[0][1] * sin(Angle_ptr->lf_angle.pitch);
-        Angle_ptr->lf_angle.knee = -1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(F_Leg_Length[1],2) - pow(F_Leg_Length[2],2))
-                                             / 2.0 / F_Leg_Length[1] / F_Leg_Length[2]);
-        double Phi = Delte + F_Leg_Length[2] * sin(Angle_ptr->lf_angle.knee);
+        Angle_ptr->lf_angle.knee = -1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(Leg_Length[1],2) - pow(Leg_Length[2],2))
+                                             / 2.0 / Leg_Length[1] / Leg_Length[2]);
+        double Phi = Delte + Leg_Length[2] * sin(Angle_ptr->lf_angle.knee);
         if(Phi == 0) {Phi = Phi + 0.000001;}
-        Angle_ptr->lf_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (F_Leg_Length[2] * sin(Angle_ptr->lf_angle.knee) - Delte))) / Phi);
+        Angle_ptr->lf_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (Leg_Length[2] * sin(Angle_ptr->lf_angle.knee) - Delte))) / Phi);
 
 
         Delte = Foot_pos_ptr->rf_foot.x - Body_Par[1][0];
         Angle_ptr->rf_angle.pitch = atan((Body_Par[1][1] - Foot_pos_ptr->rf_foot.y) / (Foot_pos_ptr->rf_foot.z - Body_Par[1][2]));
-        Epsilon = F_Leg_Length[0] + Foot_pos_ptr->rf_foot.z * cos(Angle_ptr->rf_angle.pitch) - Body_Par[1][2] * cos(Angle_ptr->rf_angle.pitch)
+        Epsilon = Leg_Length[0] + Foot_pos_ptr->rf_foot.z * cos(Angle_ptr->rf_angle.pitch) - Body_Par[1][2] * cos(Angle_ptr->rf_angle.pitch)
                   - Foot_pos_ptr->rf_foot.y * sin(Angle_ptr->rf_angle.pitch) + Body_Par[1][1] * sin(Angle_ptr->rf_angle.pitch);
-        Angle_ptr->rf_angle.knee = -1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(F_Leg_Length[1],2) - pow(F_Leg_Length[2],2))
-                                             / 2.0 / F_Leg_Length[1] / F_Leg_Length[2]);
-        Phi = Delte + F_Leg_Length[2] * sin(Angle_ptr->rf_angle.knee);
+        Angle_ptr->rf_angle.knee = -1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(Leg_Length[1],2) - pow(Leg_Length[2],2))
+                                             / 2.0 / Leg_Length[1] / Leg_Length[2]);
+        Phi = Delte + Leg_Length[2] * sin(Angle_ptr->rf_angle.knee);
         if(Phi == 0) {Phi = Phi + 0.000001;}
-        Angle_ptr->rf_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (F_Leg_Length[2] * sin(Angle_ptr->rf_angle.knee) - Delte))) / Phi);
+        Angle_ptr->rf_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (Leg_Length[2] * sin(Angle_ptr->rf_angle.knee) - Delte))) / Phi);
 
         //back
         Delte = Foot_pos_ptr->lb_foot.x - Body_Par[2][0];
         Angle_ptr->lb_angle.pitch = atan((Body_Par[2][1] - Foot_pos_ptr->lb_foot.y) / (Foot_pos_ptr->lb_foot.z - Body_Par[2][2]));
 
-        Epsilon = B_Leg_Length[0] + Foot_pos_ptr->lb_foot.z * cos(Angle_ptr->lb_angle.pitch) - Body_Par[2][2] * cos(Angle_ptr->lb_angle.pitch)
+        Epsilon = Leg_Length[0] + Foot_pos_ptr->lb_foot.z * cos(Angle_ptr->lb_angle.pitch) - Body_Par[2][2] * cos(Angle_ptr->lb_angle.pitch)
                   - Foot_pos_ptr->lb_foot.y * sin(Angle_ptr->lb_angle.pitch) + Body_Par[2][1] * sin(Angle_ptr->lb_angle.pitch);
-        Angle_ptr->lb_angle.knee = 1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(B_Leg_Length[1],2) - pow(B_Leg_Length[2],2))
-                                            / 2.0 / B_Leg_Length[1] / B_Leg_Length[2]);
-        Phi = Delte + B_Leg_Length[2] * sin(Angle_ptr->lb_angle.knee);
+        Angle_ptr->lb_angle.knee = 1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(Leg_Length[1],2) - pow(Leg_Length[2],2))
+                                            / 2.0 / Leg_Length[1] / Leg_Length[2]);
+        Phi = Delte + Leg_Length[2] * sin(Angle_ptr->lb_angle.knee);
         if(Phi == 0) {Phi = Phi + 0.000001;}
-        Angle_ptr->lb_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (B_Leg_Length[2] * sin(Angle_ptr->lb_angle.knee) - Delte))) / Phi);
+        Angle_ptr->lb_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (Leg_Length[2] * sin(Angle_ptr->lb_angle.knee) - Delte))) / Phi);
 
 
         Delte = Foot_pos_ptr->rb_foot.x - Body_Par[3][0];
         Angle_ptr->rb_angle.pitch = atan((Body_Par[3][1] - Foot_pos_ptr->rb_foot.y) / (Foot_pos_ptr->rb_foot.z - Body_Par[3][2]));
-        Epsilon = B_Leg_Length[0] + Foot_pos_ptr->rb_foot.z * cos(Angle_ptr->rb_angle.pitch) - Body_Par[3][2] * cos(Angle_ptr->rb_angle.pitch)
+        Epsilon = Leg_Length[0] + Foot_pos_ptr->rb_foot.z * cos(Angle_ptr->rb_angle.pitch) - Body_Par[3][2] * cos(Angle_ptr->rb_angle.pitch)
                   - Foot_pos_ptr->rb_foot.y * sin(Angle_ptr->rb_angle.pitch) + Body_Par[3][1] * sin(Angle_ptr->rb_angle.pitch);
-        Angle_ptr->rb_angle.knee = 1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(B_Leg_Length[1],2) - pow(B_Leg_Length[2],2))
-                                            / 2.0 / B_Leg_Length[1] / B_Leg_Length[2]);
-        Phi = Delte + B_Leg_Length[2] * sin(Angle_ptr->rb_angle.knee);
+        Angle_ptr->rb_angle.knee = 1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(Leg_Length[1],2) - pow(Leg_Length[2],2))
+                                            / 2.0 / Leg_Length[1] / Leg_Length[2]);
+        Phi = Delte + Leg_Length[2] * sin(Angle_ptr->rb_angle.knee);
         if(Phi == 0) {Phi = Phi + 0.000001;}
-        Angle_ptr->rb_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (B_Leg_Length[2] * sin(Angle_ptr->rb_angle.knee) - Delte))) / Phi);
+        Angle_ptr->rb_angle.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (Leg_Length[2] * sin(Angle_ptr->rb_angle.knee) - Delte))) / Phi);
 
 }
 /**************************************************************************
@@ -761,25 +758,10 @@ std::vector<double> PositionJointGroupController::vec_assign(Angle_Ptr Angle)
         vec.push_back(Angle->rb_angle.knee);
         return vec;
 }
-/**************************************************************************
-   Author: WangShanren
-   Date: 2017.2.22
-   Description: rostopic callback function，read data to buffer
-   Input: topic data
-   Output: none
-**************************************************************************/
-void PositionJointGroupController::commandCB(const std_msgs::Float64MultiArrayConstPtr& msg)
-{
-        if(msg->data.size()!=n_joints_)
-        {
-                ROS_ERROR("ERROR! Dimension of command does not match number of joints");
-                return;
-        }
-        commands_buffer_.writeFromNonRT(msg->data);
-}
+
 
 }
-PLUGINLIB_DECLARE_CLASS(dragon_three_dof, PositionJointGroupController,
-                        dragon_three_dof::PositionJointGroupController,
+PLUGINLIB_DECLARE_CLASS(dinasour, PositionJointGroupController,
+                        dinasour::PositionJointGroupController,
                         controller_interface::ControllerBase)
 // PLUGINLIB_EXPORT_CLASS(dragon_control::ForwardJointGroupCommandController,controller_interface::ControllerBase)
