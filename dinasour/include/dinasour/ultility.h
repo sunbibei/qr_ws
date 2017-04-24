@@ -2,12 +2,10 @@
 #include <string>
 #include <iostream>
 
-
 const unsigned int LEG_NUM 4
 const unsigned int DOF 3
 const unsigned int SPACE 3
-const unsigned float Min_Angle_Error 0.05
-const unsigned float Min_Pos_Error 0.05
+
 const unsigned float PI 3.14159265
 const unsigned int HEIGHT 50
 const unsigned int Velocity 5 // cm/s
