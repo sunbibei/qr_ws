@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dragon">
+
+  <xacro:include filename="$(find dragon_description)/urdf/single_leg.urdf.xacro"/>
+  <xacro:include filename="$(find dragon_description)/urdf/single_leg.transmission.xacro"/>
+  <xacro:include filename="$(find dragon_description)/urdf/single_leg.gazebo.xacro"/>
+
+</robot>

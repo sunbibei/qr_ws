@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: dragon_single_leg
+Description: Description of dragon_single_leg
+Version: 1.1.5
+Cflags: -I/usr/local/include -I/usr/include
+Libs: -L/usr/local/lib -ldragon_single_leg_lib -l:/usr/lib/x86_64-linux-gnu/libboost_thread.so -l:/usr/lib/x86_64-linux-gnu/libpthread.so
+Requires: 

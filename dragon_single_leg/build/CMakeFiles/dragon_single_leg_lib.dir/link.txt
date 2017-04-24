@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -std=c++11   -shared -Wl,-soname,libdragon_single_leg_lib.so -o devel/lib/libdragon_single_leg_lib.so CMakeFiles/dragon_single_leg_lib.dir/src/position_controller.cpp.o 
