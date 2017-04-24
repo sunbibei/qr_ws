@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -std=c++11   -shared -Wl,-soname,libgtest_main.so -o libgtest_main.so CMakeFiles/gtest_main.dir/src/gtest_main.cc.o  -L/home/w/catkin_ws/src/dragon_single_leg/build/gtest/src -lpthread libgtest.so -lpthread -Wl,-rpath,/home/w/catkin_ws/src/dragon_single_leg/build/gtest/src:/home/w/catkin_ws/src/dragon_single_leg/build/gtest 
