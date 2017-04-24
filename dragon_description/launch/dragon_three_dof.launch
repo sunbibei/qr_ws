@@ -15,4 +15,9 @@
 	<!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
 	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-urdf -model dragon  -z 0.7 -param robot_description"/>
+
+	<!-- joint_state_controller -->
+  <!--rosparam file="$(find dragon_gazebo)/controller/joint_state_controller.yaml" command="load"/-->
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
+
 </launch>
