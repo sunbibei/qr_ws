@@ -36,7 +36,7 @@ public:
                 void starting(const ros::Time& time);
                 void update(const ros::Time& time, const ros::Duration& period);
 
-                int n_joints_;            
+                int n_joints_;
                 std::vector<double> commands;
                 std_msgs::Float64MultiArray msg;
                 std::vector< std::string > joint_names_;
@@ -48,24 +48,30 @@ private:
                 unsigned int Time_Order = 0;
                 unsigned int Leg_Order = 1;
                 Angle Angle_Group = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
-                Position Foot_Position_Group = {{Body_Par[0][0],Body_Par[0][1],-Leg_Length[0] - Leg_Length[1] - Leg_Length[2]},
-                                                {Body_Par[1][0],Body_Par[1][1],-Leg_Length[0] - Leg_Length[1] - Leg_Length[2]},
-                                                {Body_Par[2][0],Body_Par[2][1],-Leg_Length[0] - Leg_Length[1] - Leg_Length[2]},
-                                                {Body_Par[3][0],Body_Par[3][1],-Leg_Length[0] - Leg_Length[1] - Leg_Length[2]}};
+                Position Foot_Position_Group = {{Body_L, Body_W, -L0 - L1 - L2},
+                                                {Body_L, -Body_W, -L0 - L1 - L2},
+                                                {-Body_L, Body_W, -L0 - L1 - L2},
+                                                {-Body_L, -Body_W, -L0 - L1 - L2}};
 
                 Angle_Ptr Angle_ptr = &Angle_Group;
-                Position_Ptr Foot_pos_ptr = &Foot_Position_Group;
+                Position_Ptr Pos_ptr = &Foot_Position_Group;
                 _Position Desired_Foot_Pos = {0,0,0};
                 _Position Pos_start,Cog_adj;
 
                 void forward_kinematics();
                 void reverse_kinematics();
                 void pose_init();
+                void cog_adj();
+                _Position cal_formula(_Angle_Leg A,int L,int W);
+                _Angle_Leg cal_kinematics(_Position P,int L,int W,int Sgn);
+                void cog_pos_assign(_Position Adj);
+                void swing_control();
+                void assign_next_foot();
                 void ISM(unsigned int Loop_count);
                 int Sgn(double a);
                 std::vector<double> vec_assign(Angle_Ptr Angle);
 
-
+                float get_adj_pos(float Adj, int t, int T);
                 _Position get_stance_position(_Position Adj_vec, unsigned int Loop);
                 _Position get_stance_velocity(_Position Adj_vec, unsigned int Loop);
                 _Position get_stance_acceration(_Position Adj_vec, unsigned int Loop);
