@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(dragon_single_leg)
+project(qr_single_leg)
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -18,7 +18,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES dragon_single_leg_lib
+  LIBRARIES qr_single_leg_lib
   CATKIN_DEPENDS
   DEPENDS system_lib Boost
 )
@@ -28,11 +28,11 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 set(DDP_FILES  src/position_controller.cpp)
 #set(DDP_FILES  src/velocity_controller.cpp)
-add_library(dragon_single_leg_lib ${DDP_FILES} )
+add_library(qr_single_leg_lib ${DDP_FILES} )
 
 #add_executable(test src/test.cpp)
 
- target_link_libraries(dragon_single_leg_lib
+ target_link_libraries(qr_single_leg_lib
   ${catkin_LIBRARIES}
-  ${dragon_single_leg_lib_libraries}
+  ${qr_single_leg_lib_libraries}
  )

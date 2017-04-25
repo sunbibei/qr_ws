@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
-  <param name="PositionController/type" value="dragon_single_leg/PositionController" />
+  <param name="PositionController/type" value="qr_single_leg/PositionController" />
 
-  <rosparam command="load" file="$(find dragon_single_leg)/launch/position_controller.yaml" />
+  <rosparam command="load" file="$(find qr_single_leg)/launch/position_controller.yaml" />
 
 
   <!-- Spawn Controller -->

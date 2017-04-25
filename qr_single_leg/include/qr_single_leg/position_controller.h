@@ -22,9 +22,9 @@
 #include <urdf/model.h>
 #include <angles/angles.h>
 #include <pluginlib/class_list_macros.h>
-#include "dragon_single_leg/ultility.h"
+#include "qr_single_leg/ultility.h"
 
-namespace dragon_single_leg
+namespace qr_single_leg
 {
         class PositionController: public controller_interface::Controller<hardware_interface::PositionJointInterface>
         {

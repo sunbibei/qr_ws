@@ -1,7 +1,7 @@
 
-#include "dragon_single_leg/position_controller.h"
+#include "qr_single_leg/position_controller.h"
 
-namespace dragon_single_leg
+namespace qr_single_leg
 {
 
 PositionController::PositionController()
@@ -299,7 +299,7 @@ void PositionController::reverse_kinematics()
 }
 
 }
-PLUGINLIB_DECLARE_CLASS(dragon_single_leg, PositionController,
-                        dragon_single_leg::PositionController,
+PLUGINLIB_DECLARE_CLASS(qr_single_leg, PositionController,
+                        qr_single_leg::PositionController,
                         controller_interface::ControllerBase)
 // PLUGINLIB_EXPORT_CLASS(dragon_control::ForwardJointGroupCommandController,controller_interface::ControllerBase)

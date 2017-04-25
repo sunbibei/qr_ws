@@ -1,8 +1,8 @@
 <package>
-    <name>dragon_single_leg</name>
+    <name>qr_single_leg</name>
     <version>1.1.5</version>
     <description>
-        dragon_single_leg
+        qr_single_leg
     </description>
     <author></author>
     <maintainer email="wsr_uestc@163.com">WangShanren</maintainer>
