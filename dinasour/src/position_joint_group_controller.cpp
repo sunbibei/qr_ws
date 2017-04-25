@@ -9,11 +9,8 @@ PositionJointGroupController::PositionJointGroupController()
 }
 PositionJointGroupController::~PositionJointGroupController()
 {
-
 }
 /**************************************************************************
-   Author: WangShanren
-   Date: 2017.2.21
    Description: initialize joints from robot_description
 **************************************************************************/
 bool PositionJointGroupController::init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n)
@@ -114,6 +111,7 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
                 joint_state_publisher_->unlockAndPublish();
         }
 }
+
 void PositionJointGroupController::pose_init()
 {
         float adj = fabs(L0 + L1 + L2 - Height);//TODO
@@ -141,16 +139,16 @@ void PositionJointGroupController::assign_next_foot()
         switch(Leg_Order)//choose swing foot
         {
         case 1:
-                Desired_Foot_Pos = struct_assign(Body_L - 10, Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(Body_L + 10, Body_W, -Height);
                 break;
         case 2:
-                Desired_Foot_Pos = struct_assign(Body_L - 10, -Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(Body_L + 10, -Body_W, -Height);
                 break;
         case 3:
-                Desired_Foot_Pos = struct_assign(-Body_L - 15, Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(-Body_L + 15, Body_W, -Height);
                 break;
         case 4:
-                Desired_Foot_Pos = struct_assign(-Body_L - 15, -Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(-Body_L + 15, -Body_W, -Height);
                 break;
         default: break;
         }
@@ -201,37 +199,65 @@ void PositionJointGroupController::cog_adj()
    Input: start point,and desired point,and sample time order(1~)
    Output: innerheart position
 **************************************************************************/
+// _Position PositionController::get_swing_pos(_Position Start_point, _Position End_point,int Loop)
+// {
+//         _Position swing_foot = {0,0,0};
+//         int sgn = Sgn( End_point.x - Start_point.x);
+//         float angle = PI - PI * Loop/Swing_Num;
+//         float centre = (Start_point.x + End_point.x)/2;
+//         float a =  fabs(Start_point.x - End_point.x)/2;
+//         float b = Swing_Height;
+//         swing_foot.x = sgn*(a + a*cos(angle));
+//         swing_foot.z = b*sin(angle);
+//
+//         sgn = Sgn( End_point.y - Start_point.y);
+//         a =  fabs(Start_point.y - End_point.y)/2;
+//
+//         swing_foot.y = sgn*(a + a*cos(angle));
+//
+//         return swing_foot;
+// }
 _Position PositionJointGroupController::get_swing_pos(_Position Start_point, _Position End_point, unsigned int Loop)
 {
-        unsigned int last_order = Loop - 1;
-        if(Loop==0)
+        // unsigned int last_order = Loop - 1;
+        if(Loop<=1)
         {
-                last_order = 0;
+                Last_adj = struct_copy(Start_point);
         }
 
-        int sgn = Sgn(End_point.x - Start_point.x);
-        _Position swing_foot = {0,0,0};
-        double theta = Loop * PI / Swing_Num;
-        double b = Swing_Height;
-        double a = fabs((End_point.x - Start_point.x) / 2.0);
+        _Position swing_foot = {0,0,0}, result = {0,0,0};
+        int sgn = Sgn( End_point.x - Start_point.x);
+        float angle = PI - PI * Loop/Swing_Num;
+        float centre = (Start_point.x + End_point.x)/2;
+        float a =  fabs(Start_point.x - End_point.x)/2;
+        float b = Swing_Height;
+        swing_foot.x = sgn*(a + a*cos(angle));
+        swing_foot.z = b*sin(angle);
 
-        swing_foot.x = a - sgn * a * cos(theta);
-        swing_foot.z = b * sin(theta);
+        sgn = Sgn( End_point.y - Start_point.y);
+        a =  fabs(Start_point.y - End_point.y)/2;
 
-        sgn = Sgn(End_point.y - Start_point.y);
-        a = fabs((End_point.y - Start_point.y) / 2.0);
-        swing_foot.y = a - sgn * a * cos(theta);
+        swing_foot.y = sgn*(a + a*cos(angle));
 
-        theta = last_order * PI / Swing_Num;
-        sgn = Sgn(End_point.x - Start_point.x);
-        a = fabs((End_point.x - Start_point.x) / 2.0);
-        swing_foot.x = swing_foot.x - a + sgn * a * cos(theta);
-        swing_foot.z = swing_foot.z - b * sin(theta);
-        sgn = Sgn(End_point.y - Start_point.y);
-        a = fabs((End_point.y - Start_point.y) / 2.0);
-        swing_foot.y = swing_foot.y - a + sgn * a * cos(theta);
-        return swing_foot;
-        // std::cout<<"Adj_Vector:"<<swing_foot.x<<"  "<<swing_foot.y<<"  "<<swing_foot.z<<std::endl;
+        result.x = swing_foot.x - Last_adj.x;
+        result.y = swing_foot.y - Last_adj.y;
+        result.z = swing_foot.z - Last_adj.z;
+
+        Last_adj = struct_copy(swing_foot);
+
+
+
+        // theta = last_order * PI / Swing_Num;
+        // sgn = Sgn(End_point.x - Start_point.x);
+        // a = fabs((End_point.x - Start_point.x) / 2.0);
+        // swing_foot.x = swing_foot.x - a + sgn * a * cos(theta);
+        // swing_foot.z = swing_foot.z - b * sin(theta);
+        // sgn = Sgn(End_point.y - Start_point.y);
+        // a = fabs((End_point.y - Start_point.y) / 2.0);
+        // swing_foot.y = swing_foot.y - a + sgn * a * cos(theta);
+         std::cout<<"Adj_Vector:"<<result.x<<"  "<<result.y<<"  "<<result.z<<std::endl;
+        return result;
+
 }
 /**************************************************************************
    Author: WangShanren
@@ -376,9 +402,8 @@ void PositionJointGroupController::reverse_kinematics()
 {
         Angle_ptr->lf = cal_kinematics(Pos_ptr->lf, Body_L, Body_W,-1);
         Angle_ptr->rf = cal_kinematics(Pos_ptr->rf, Body_L,-Body_W,-1);
-
-        Angle_ptr->lb = cal_kinematics(Pos_ptr->lb,-Body_L, Body_W,1);
-        Angle_ptr->rb = cal_kinematics(Pos_ptr->rb,-Body_L,-Body_W,1);      
+        Angle_ptr->lb = cal_kinematics(Pos_ptr->lb,-Body_L, Body_W, 1);
+        Angle_ptr->rb = cal_kinematics(Pos_ptr->rb,-Body_L,-Body_W, 1);
 }
 /**************************************************************************
    Author: WangShanren

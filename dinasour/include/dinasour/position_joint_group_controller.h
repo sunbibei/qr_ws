@@ -56,7 +56,7 @@ private:
                 Angle_Ptr Angle_ptr = &Angle_Group;
                 Position_Ptr Pos_ptr = &Foot_Position_Group;
                 _Position Desired_Foot_Pos = {0,0,0};
-                _Position Pos_start,Cog_adj;
+                _Position Pos_start,Cog_adj,Last_adj={0,0,0};
 
                 void forward_kinematics();
                 void reverse_kinematics();
