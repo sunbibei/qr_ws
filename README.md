@@ -9,7 +9,7 @@
 
 将该目录放到自己的catkin工作空间中的src文件夹下(例如`~/catkin_ws/src/'), 使用`catkin_make`编译即可.
 
-总共包含7个功能包, 分别是`qr_description`, `qr_control`, `qr_single_leg`, `dragon_description`, `dragon_driver`, `dragon_gazebo`, 和 `dragon_moveit_config`.
+总共包含6个功能包, 分别是`qr_description`, `qr_control`, `qr_single_leg`, `dragon_driver`, `dragon_gazebo`, 和 `dragon_moveit_config`.
 
 ## `qr_description`
 
@@ -23,10 +23,6 @@
 
 该功能包, single leg three dof gait control.
 
-
-## `dragon_description`
-
-该功能包, 包含恐龙机器人描述文件, 启动launch文件等. 另外, 还包含单腿平台模型文件.
 
 ## `dragon_gazebo`
 
