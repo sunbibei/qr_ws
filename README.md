@@ -11,6 +11,19 @@
 
 总共包含4个功能包, 分别是`dragon_description`, `dragon_driver`, `dragon_gazebo`, 和 `dragon_moveit_config`.
 
+## `qr_description`
+
+该功能包, 包含所有恐龙机器人描述文件, 启动launch文件等. 另外, 还包含单腿平台模型文件.
+
+## `qr_control`
+
+该功能包, four legs three dof gait control.
+
+## `qr_single_leg`
+
+该功能包, single leg three dof gait control.
+
+
 ## `dragon_description`
 
 该功能包, 包含恐龙机器人描述文件, 启动launch文件等. 另外, 还包含单腿平台模型文件.
@@ -26,3 +39,4 @@
 ## `dragon_driver`
 
 该功能包, 依据实际机器人平台, 完成与实际机器人通讯, 启动机器人, 获取机器人数据, 并提供ROS Control 机制支持.
+
