@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>dragon_description</name>
+  <name>qr_description</name>
   <version>0.0.0</version>
-  <description>The dragon_description package</description>
+  <description>The qr_description package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
