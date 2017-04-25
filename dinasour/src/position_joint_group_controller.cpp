@@ -69,6 +69,7 @@ void PositionJointGroupController::starting(const ros::Time& time)
         {
                 commands[i]=joints_[i].getPosition();
         }
+        forward_kinematics();
 }
 /**************************************************************************
    Author: WangShanren
@@ -378,7 +379,7 @@ void PositionJointGroupController::forward_kinematics()
 **************************************************************************/
 _Angle_Leg PositionJointGroupController::cal_kinematics(_Position P,int L,int W,int Sgn)
 {
-        _Angle_Leg A;
+        _Angle_Leg A={0,0,0};
         double Delte = P.x - L;
         A.pitch = atan((W - P.y) / (P.z ));
         double Epsilon = L0 + P.z * cos(A.pitch) - P.y * sin(A.pitch) + W * sin(A.pitch);
@@ -390,56 +391,10 @@ _Angle_Leg PositionJointGroupController::cal_kinematics(_Position P,int L,int W,
 }
 void PositionJointGroupController::reverse_kinematics()
 {
-        //front
         Angle_ptr->lf = cal_kinematics(Pos_ptr->lf, Body_L, Body_W,-1);
         Angle_ptr->rf = cal_kinematics(Pos_ptr->rf, Body_L,-Body_W,-1);
         Angle_ptr->lb = cal_kinematics(Pos_ptr->lb,-Body_L, Body_W,1);
         Angle_ptr->rb = cal_kinematics(Pos_ptr->rb,-Body_L,-Body_W,1);
-        // return;
-        // double Delte = Pos_ptr->lf.x - Body_L;
-        // Angle_ptr->lf.pitch = atan((Body_W - Pos_ptr->lf.y) / (Pos_ptr->lf.z ));
-        // double Epsilon = L0 + Pos_ptr->lf.z * cos(Angle_ptr->lf.pitch)
-        //                  - Pos_ptr->lf.y * sin(Angle_ptr->lf.pitch) + Body_W * sin(Angle_ptr->lf.pitch);
-        // Angle_ptr->lf.knee = -1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(L1,2) - pow(L2,2))
-        //                                / 2.0 / L1 / L2);
-        // double Phi = Delte + L2 * sin(Angle_ptr->lf.knee);
-        // if(Phi == 0) {Phi = Phi + 0.000001;}
-        // Angle_ptr->lf.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (L2 * sin(Angle_ptr->lf.knee) - Delte))) / Phi);
-        //
-        //
-        // Delte = Pos_ptr->rf.x - Body_L;
-        // Angle_ptr->rf.pitch = atan((-Body_W - Pos_ptr->rf.y) / (Pos_ptr->rf.z));
-        // Epsilon = L0 + Pos_ptr->rf.z * cos(Angle_ptr->rf.pitch)
-        //           - Pos_ptr->rf.y * sin(Angle_ptr->rf.pitch) + -Body_W * sin(Angle_ptr->rf.pitch);
-        // Angle_ptr->rf.knee = -1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(L1,2) - pow(L2,2))
-        //                                / 2.0 / L1 / L2);
-        // Phi = Delte + L2 * sin(Angle_ptr->rf.knee);
-        // if(Phi == 0) {Phi = Phi + 0.000001;}
-        // Angle_ptr->rf.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (L2 * sin(Angle_ptr->rf.knee) - Delte))) / Phi);
-        //
-        // //back
-        // Delte = Pos_ptr->lb.x - -Body_L;
-        // Angle_ptr->lb.pitch = atan((Body_W - Pos_ptr->lb.y) / (Pos_ptr->lb.z));
-        //
-        // Epsilon = L0 + Pos_ptr->lb.z * cos(Angle_ptr->lb.pitch)
-        //           - Pos_ptr->lb.y * sin(Angle_ptr->lb.pitch) + Body_W * sin(Angle_ptr->lb.pitch);
-        // Angle_ptr->lb.knee = 1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(L1,2) - pow(L2,2))
-        //                               / 2.0 / L1 / L2);
-        // Phi = Delte + L2 * sin(Angle_ptr->lb.knee);
-        // if(Phi == 0) {Phi = Phi + 0.000001;}
-        // Angle_ptr->lb.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (L2 * sin(Angle_ptr->lb.knee) - Delte))) / Phi);
-        //
-        //
-        // Delte = Pos_ptr->rb.x - -Body_L;
-        // Angle_ptr->rb.pitch = atan((-Body_W - Pos_ptr->rb.y) / Pos_ptr->rb.z );
-        // Epsilon = L0 + Pos_ptr->rb.z * cos(Angle_ptr->rb.pitch)
-        //           - Pos_ptr->rb.y * sin(Angle_ptr->rb.pitch) + -Body_W * sin(Angle_ptr->rb.pitch);
-        // Angle_ptr->rb.knee = 1 * acos((pow(Delte,2) + pow(Epsilon,2) - pow(L1,2) - pow(L2,2))
-        //                               / 2.0 / L1 / L2);
-        // Phi = Delte + L2 * sin(Angle_ptr->rb.knee);
-        // if(Phi == 0) {Phi = Phi + 0.000001;}
-        // Angle_ptr->rb.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (L2 * sin(Angle_ptr->rb.knee) - Delte))) / Phi);
-
 }
 /**************************************************************************
    Author: WangShanren
