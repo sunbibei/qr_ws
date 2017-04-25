@@ -1,0 +1,13 @@
+PositionJointGroupController:
+   joint_0: "left_front_pitch"
+   joint_1: "right_front_pitch"
+   joint_2: "left_back_pitch"
+   joint_3: "right_back_pitch"
+   joint_4: "left_front_hip"
+   joint_5: "right_front_hip"
+   joint_6: "left_back_hip"
+   joint_7: "right_back_hip"
+   joint_8: "left_front_knee"
+   joint_9: "right_front_knee"
+   joint_10: "left_back_knee"
+   joint_11: "right_back_knee"
