@@ -114,6 +114,86 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
                 joint_state_publisher_->unlockAndPublish();
         }
 }
+void PositionJointGroupController::pose_init()
+{
+        float adj = fabs(L0 + L1 + L2 - Height);//TODO
+
+        if(Loop_Count>Init_Num)//TODO
+        {
+                Loop_Count = 0;
+                Time_Order = 1;
+                return;
+        }
+
+        Pos_ptr->lb.z = Pos_ptr->rf.z = Pos_ptr->rb.z = Pos_ptr->lf.z = -(L0 + L1 + L2) + get_adj_pos(adj, Loop_Count, Init_Num);
+
+        reverse_kinematics();
+}
+float PositionJointGroupController::get_adj_pos(float Adj, int t, int T)
+{
+        float pos = 6 * Adj * pow(t,5) / pow(T,5) - 15 * Adj * pow(t,4) / pow(T,4)
+                    + 10 * Adj * pow(t,3) / pow(T,3);
+        return pos;
+}
+
+void PositionJointGroupController::assign_next_foot()
+{
+        switch(Leg_Order)//choose swing foot
+        {
+        case 1:
+                Desired_Foot_Pos = struct_assign(Body_L - 10, Body_W, -Height);
+                break;
+        case 2:
+                Desired_Foot_Pos = struct_assign(Body_L - 10, -Body_W, -Height);
+                break;
+        case 3:
+                Desired_Foot_Pos = struct_assign(-Body_L - 15, Body_W, -Height);
+                break;
+        case 4:
+                Desired_Foot_Pos = struct_assign(-Body_L - 15, -Body_W, -Height);
+                break;
+        default: break;
+        }
+
+        Loop_Count = 0;
+        Time_Order = 2;
+}
+void PositionJointGroupController::cog_adj()
+{
+        _Position adj = {0,0,0};
+
+        if(Loop_Count <= Stance_Num)
+        {
+                if(Loop_Count==1)
+                {
+                        Cog_adj = get_CoG_adj_vec(Desired_Foot_Pos,Leg_Order);         //1 means left
+                }
+                adj = get_stance_position(Cog_adj, Loop_Count);
+                cog_pos_assign(adj);
+                reverse_kinematics();
+        }
+        else
+        {
+                Loop_Count = 0;
+                Time_Order = 3;
+                switch(Leg_Order)
+                {
+                case 1:
+                        Pos_start = struct_copy(Pos_ptr->lf);
+                        break;
+                case 2:
+                        Pos_start = struct_copy(Pos_ptr->rf);
+                        break;
+                case 3:
+                        Pos_start = struct_copy(Pos_ptr->lb);
+                        break;
+                case 4:
+                        Pos_start = struct_copy(Pos_ptr->rb);
+                        break;
+                default: break;
+                }
+        }
+}
 /**************************************************************************
    Author: WangShanren
    Date: 2017.2.22
@@ -236,111 +316,12 @@ void PositionJointGroupController::swing_control()
 }
 void PositionJointGroupController::cog_pos_assign(_Position Adj)
 {
-        Pos_ptr->lf = struct_assign(Pos_ptr->lf.x - Adj.x,
-                                    Pos_ptr->lf.y - Adj.y, Pos_ptr->lf.z);
-        Pos_ptr->rf = struct_assign(Pos_ptr->rf.x - Adj.x,
-                                    Pos_ptr->rf.y - Adj.y, Pos_ptr->rf.z);
-        Pos_ptr->lb = struct_assign(Pos_ptr->lb.x - Adj.x,
-                                    Pos_ptr->lb.y - Adj.y, Pos_ptr->lb.z);
-        Pos_ptr->rb = struct_assign(Pos_ptr->rb.x - Adj.x,
-                                    Pos_ptr->rb.y - Adj.y, Pos_ptr->rb.z);
+        Pos_ptr->lf = struct_assign(Pos_ptr->lf.x - Adj.x, Pos_ptr->lf.y - Adj.y, Pos_ptr->lf.z);
+        Pos_ptr->rf = struct_assign(Pos_ptr->rf.x - Adj.x, Pos_ptr->rf.y - Adj.y, Pos_ptr->rf.z);
+        Pos_ptr->lb = struct_assign(Pos_ptr->lb.x - Adj.x, Pos_ptr->lb.y - Adj.y, Pos_ptr->lb.z);
+        Pos_ptr->rb = struct_assign(Pos_ptr->rb.x - Adj.x, Pos_ptr->rb.y - Adj.y, Pos_ptr->rb.z);
 }
-void PositionJointGroupController::cog_adj()
-{
-        _Position adj = {0,0,0};
-        switch(Leg_Order)
-        {
-        case 1://adjust CoG to right side
-                if(Loop_Count <= Stance_Num)
-                {
-                        if(Loop_Count==1)
-                        {
-                                Cog_adj = get_CoG_adj_vec(Desired_Foot_Pos,Leg_Order); //1 means left
-                        }
-                        adj = get_stance_position(Cog_adj, Loop_Count);
-                        cog_pos_assign(adj);
-                        reverse_kinematics();
-                }
-                else
-                {
-                        Loop_Count = 0;
-                        Time_Order = 3;
-                        Leg_Order = 1;
-                        Pos_start = struct_copy(Pos_ptr->lf);
-                }
-                break;
-        case 2://adjust CoG to left side
-                if(Loop_Count <= Stance_Num)
-                {
-                        if(Loop_Count==1)
-                        {
-                                Cog_adj = get_CoG_adj_vec(Desired_Foot_Pos,Leg_Order); //1 means left
-                        }
-                        adj = get_stance_position(Cog_adj, Loop_Count);
-                        cog_pos_assign(adj);
-                        reverse_kinematics();
-                }
-                else
-                {
-                        Loop_Count = 0;
-                        Time_Order = 3;
-                        Leg_Order = 2;
-                        Pos_start = struct_copy(Pos_ptr->rf);
-                }
-                break;
-        case 3:
-                Pos_start = struct_copy(Pos_ptr->lb);
-                Time_Order = 3;
-                break;
-        case 4:
-                Pos_start = struct_copy(Pos_ptr->rb);
-                Time_Order = 3;
-                break;
-        }
-}
-void PositionJointGroupController::assign_next_foot()
-{
-        switch(Leg_Order)//choose swing foot
-        {
-        case 1:
-                Desired_Foot_Pos = struct_assign(Body_L - 10, Body_W, -Height);
-                break;
-        case 2:
-                Desired_Foot_Pos = struct_assign(Body_L - 10, -Body_W, -Height);
-                break;
-        case 3:
-                Desired_Foot_Pos = struct_assign(-Body_L - 15, Body_W, -Height);
-                break;
-        case 4:
-                Desired_Foot_Pos = struct_assign(-Body_L - 15, -Body_W, -Height);
-                break;
-        default: break;
-        }
 
-        Loop_Count = 0;
-        Time_Order = 2;
-}
-void PositionJointGroupController::pose_init()
-{
-        float adj = fabs(L0 + L1 + L2 - Height);//TODO
-
-        if(Loop_Count>Init_Num)//TODO
-        {
-                Loop_Count = 0;
-                Time_Order = 1;
-                return;
-        }
-
-        Pos_ptr->lb.z = Pos_ptr->rf.z = Pos_ptr->rb.z = Pos_ptr->lf.z = -(L0 + L1 + L2) + get_adj_pos(adj, Loop_Count, Init_Num);
-
-        reverse_kinematics();
-}
-float PositionJointGroupController::get_adj_pos(float Adj, int t, int T)
-{
-        float pos = 6 * Adj * pow(t,5) / pow(T,5) - 15 * Adj * pow(t,4) / pow(T,4)
-                    + 10 * Adj * pow(t,3) / pow(T,3);
-        return pos;
-}
 /**************************************************************************
    Author: WangShanren
    Date: 2017.2.21
@@ -354,17 +335,15 @@ _Position PositionJointGroupController::cal_formula(_Angle_Leg A,int L,int W)
 {
         _Position p;
         p.x = L + L1 * sin(A.hip) + L2 * sin(A.hip + A.knee);
-        p.y = W + L0 * sin(A.pitch) + L1 * sin(A.pitch) * cos(Angle_ptr->lf.hip)
-              + L2 * sin(A.pitch) * cos(Angle_ptr->lf.hip + A.knee);
-        p.z = -L0 * cos(A.pitch) - L1 * cos(A.pitch) * cos(A.hip)
-              - L2 * cos(A.pitch) * cos(A.hip + A.knee);
+        p.y = W + L0 * sin(A.pitch) + L1 * sin(A.pitch) * cos(Angle_ptr->lf.hip) + L2 * sin(A.pitch) * cos(Angle_ptr->lf.hip + A.knee);
+        p.z = -L0 * cos(A.pitch) - L1 * cos(A.pitch) * cos(A.hip) - L2 * cos(A.pitch) * cos(A.hip + A.knee);
         return p;
 }
 void PositionJointGroupController::forward_kinematics()
 {
-        Pos_ptr->lf = cal_formula(Angle_ptr->lf,Body_L,Body_W);
-        Pos_ptr->rf = cal_formula(Angle_ptr->rf,Body_L,-Body_W);
-        Pos_ptr->lb = cal_formula(Angle_ptr->lb,-Body_L,Body_W);
+        Pos_ptr->lf = cal_formula(Angle_ptr->lf, Body_L, Body_W);
+        Pos_ptr->rf = cal_formula(Angle_ptr->rf, Body_L,-Body_W);
+        Pos_ptr->lb = cal_formula(Angle_ptr->lb,-Body_L, Body_W);
         Pos_ptr->rb = cal_formula(Angle_ptr->rb,-Body_L,-Body_W);
 }
 /**************************************************************************
@@ -380,21 +359,26 @@ void PositionJointGroupController::forward_kinematics()
 _Angle_Leg PositionJointGroupController::cal_kinematics(_Position P,int L,int W,int Sgn)
 {
         _Angle_Leg A={0,0,0};
+
         double Delte = P.x - L;
         A.pitch = atan((W - P.y) / (P.z ));
+
         double Epsilon = L0 + P.z * cos(A.pitch) - P.y * sin(A.pitch) + W * sin(A.pitch);
         A.knee = Sgn * acos((pow(Delte,2) + pow(Epsilon,2) - pow(L1,2) - pow(L2,2)) / 2.0 / L1 / L2);
+
         double Phi = Delte + L2 * sin(A.knee);
         if(Phi == 0) {Phi = Phi + 0.000001;}
         A.hip = 2 * atan((Epsilon + sqrt(pow(Epsilon,2) - Phi * (L2 * sin(A.knee) - Delte))) / Phi);
+
         return A;
 }
 void PositionJointGroupController::reverse_kinematics()
 {
         Angle_ptr->lf = cal_kinematics(Pos_ptr->lf, Body_L, Body_W,-1);
         Angle_ptr->rf = cal_kinematics(Pos_ptr->rf, Body_L,-Body_W,-1);
+
         Angle_ptr->lb = cal_kinematics(Pos_ptr->lb,-Body_L, Body_W,1);
-        Angle_ptr->rb = cal_kinematics(Pos_ptr->rb,-Body_L,-Body_W,1);
+        Angle_ptr->rb = cal_kinematics(Pos_ptr->rb,-Body_L,-Body_W,1);      
 }
 /**************************************************************************
    Author: WangShanren
