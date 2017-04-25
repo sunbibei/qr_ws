@@ -1,7 +1,0 @@
-<library path="lib/libdinasour_lib">
-
-    <class name="dinasour/PositionJointGroupController"
-      type="dinasour::PositionJointGroupController"
-      base_class_type="controller_interface::ControllerBase"/>
-
-</library>
