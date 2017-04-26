@@ -7,7 +7,7 @@ const float PI = 3.14159265;
 const unsigned int Height = 50;
 
 const unsigned int Foot_Steps = 10;
-const unsigned int Swing_Height = 5;
+const unsigned int Swing_Height = 4;
 
 const unsigned int Init_Num = 1000;
 const unsigned int Swing_Num  = 1000;

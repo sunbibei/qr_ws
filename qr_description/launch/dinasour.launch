@@ -3,7 +3,6 @@
 <launch>
 
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<!-- <arg name="world_name" value="$(find qr_description)/urdf/dragon_three_dof.world"/> -->
 		<arg name="world_name" default="worlds/empty.world"/>
 		<!-- more default parameters can be changed here -->
 	</include>

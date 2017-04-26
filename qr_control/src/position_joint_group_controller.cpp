@@ -123,7 +123,10 @@ void PositionJointGroupController::pose_init()
                 return;
         }
 
-        Pos_ptr->lb.z = Pos_ptr->rf.z = Pos_ptr->rb.z = Pos_ptr->lf.z = -(L0 + L1 + L2) + get_adj_pos(adj, Loop_Count, Init_Num);
+        Pos_ptr->rb.z = Pos_ptr->rf.z = Pos_ptr->lb.z = Pos_ptr->lf.z = -(L0 + L1 + L2) + get_adj_pos(adj, Loop_Count, Init_Num);
+
+        // Pos_ptr->rf.x = Pos_ptr->lf.x = Body_L + get_adj_pos(5, Loop_Count, Init_Num);
+        // Pos_ptr->rb.x = Pos_ptr->lb.x = -Body_L + get_adj_pos(5, Loop_Count, Init_Num);
 
         reverse_kinematics();
 }
@@ -559,18 +562,21 @@ std::vector<double> PositionJointGroupController::vec_assign(Angle_Ptr Angle)
 {
         std::vector<double> vec;
         vec.clear();
-        vec.push_back(Angle->lf.pitch);
-        vec.push_back(Angle->rf.pitch);
-        vec.push_back(Angle->lb.pitch);
-        vec.push_back(Angle->rb.pitch);
-        vec.push_back(Angle->lf.hip);
-        vec.push_back(Angle->rf.hip);
         vec.push_back(Angle->lb.hip);
-        vec.push_back(Angle->rb.hip);
-        vec.push_back(Angle->lf.knee);
-        vec.push_back(Angle->rf.knee);
         vec.push_back(Angle->lb.knee);
+        vec.push_back(Angle->lb.pitch);
+
+        vec.push_back(Angle->lf.hip);
+        vec.push_back(Angle->lf.knee);
+        vec.push_back(Angle->lf.pitch);
+
+        vec.push_back(Angle->rb.hip);
         vec.push_back(Angle->rb.knee);
+        vec.push_back(Angle->rb.pitch);
+
+        vec.push_back(Angle->rf.hip);
+        vec.push_back(Angle->rf.knee);
+        vec.push_back(Angle->rf.pitch);
         return vec;
 }
 
