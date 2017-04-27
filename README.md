@@ -4,7 +4,7 @@
 `dragon_robot` package, 是电子科技大学MII研究所恐龙机器人软件包. 依赖于ROS环境, 以catkin方式管理, 编译. 文件系统如下所示:
 
 <center>
-![](dragon_robot/img/tree.png)
+![](qr_ws/img/tree.png)
 </center>
 
 将该目录放到自己的catkin工作空间中的src文件夹下(例如`~/catkin_ws/src/'), 使用`catkin_make`编译即可.
