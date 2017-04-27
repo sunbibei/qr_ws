@@ -185,13 +185,13 @@ class DragonDataControl(Plugin):
     def data_pub(self):
         while(self._if_load):
             msg = Float64MultiArray()
-            msg.data = [0,0,0, 0, 0, 0, 0, 0]
+            msg.data = [0,0,0, 0, 0, 0, 0, 0,0,0,0,0]
             for i in range(len(self.hip_data)):
                 if self._if_load:
-                    msg.data[4] = self.hip_data[i]
-                    #msg.data[5] = self.knee_data[i]
+                    msg.data[9] = self.hip_data[i]
+                    msg.data[10] = self.knee_data[i]
                     self._publisher_command.publish(msg)
-                    time.sleep(0.05)
+                    time.sleep(0.02)
 
     def pushButton_load(self):
         try:
