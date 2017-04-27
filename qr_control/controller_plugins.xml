@@ -1,0 +1,7 @@
+<library path="lib/libqr_control_lib">
+
+    <class name="qr_control/PositionJointGroupController"
+      type="qr_control::PositionJointGroupController"
+      base_class_type="controller_interface::ControllerBase"/>
+
+</library>
