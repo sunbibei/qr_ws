@@ -2,8 +2,8 @@
 <robot name="dragon_robot">
 
 	<lib_paths >
-    <propagate path="/home/robot/catkin_ws/devel/lib/libpropagate_lib.so"/>
-    <hw_unit path="/home/robot/catkin_ws/devel/lib/libhardware_lib.so"/>
+    <propagate path="/home/zhangzhi/qr_ws/devel/lib/libpropagate_lib.so"/>
+    <hw_unit path="/home/zhangzhi/qr_ws/devel/lib/libhardware_lib.so"/>
   </lib_paths>
 
 	<propagates name="propagate" >

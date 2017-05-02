@@ -110,7 +110,7 @@ bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_compo
    }
 
     name = leg_name_ + joint_name_;
-    LOG_WARNING << "name is " << name; 
+    //LOG_WARNING << "name is " << name; 
     auto itr = state_composite.find(name);
     if (state_composite.end() != itr){
       Encoder::StateTypeSp act_state

@@ -10,11 +10,11 @@
   <!-- The max_velocity parameter is only used for debugging in the qr_driver. It's not related to actual velocity limits -->
   <arg name="max_velocity" default="10.0"/>
   <!-- Load the URDF/Xacro model of our robot -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find dragon_description)/urdf/single_leg.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qr_description)/urdf/single_leg.urdf.xacro'" />
 
   <!-- Load hardware interface -->
-  <node name="dragon_driver" pkg="dragon_driver" type="dragon_driver" output="screen">
-    <param name="configure" command="cat '$(find dragon_driver)/config/robot_specification.xml'"/>
+  <node name="qr_driver" pkg="qr_driver" type="qr_driver" output="screen">
+    <param name="configure" command="cat '$(find qr_driver)/config/robot_specification.xml'"/>
     <param name="use_ros_control" type="bool" value="$(arg use_ros_control)"/>
     <param name="debug" type="bool" value="$(arg debug)" />
     <param name="rt_frequency" type="double" value="$(arg rt_frequency)" />
@@ -26,7 +26,7 @@
   </node>
 
   <!-- Load controller settings -->
-  <rosparam if="$(arg use_ros_control)" file="$(find dragon_driver)/config/controllers.yaml" command="load"/>
+  <rosparam if="$(arg use_ros_control)" file="$(find qr_driver)/config/controllers.yaml" command="load"/>
 
   <!-- spawn controller manager -->
   <node if="$(arg use_ros_control)" name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
