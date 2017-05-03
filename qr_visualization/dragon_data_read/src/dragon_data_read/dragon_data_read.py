@@ -16,7 +16,7 @@ import time
 import math
 
 #topic_name
-CONTROLLER_TOPIC = "/dragon/joint_angle_command"
+CONTROLLER_TOPIC = "/dragon/joint_state"
 ENCORDER_TOPIC = "/joint_states"
 ELE_CUR_TOPIC = "/cur_states"
 

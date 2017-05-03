@@ -16,8 +16,8 @@ import rospy
 from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common import topic_helpers
 
-#MOTOR_TOPIC_NAME = "/dragon/joint_angle_command"
-MOTOR_TOPIC_NAME = "/debug"
+MOTOR_TOPIC_NAME = "/dragon/joint_state"
+#MOTOR_TOPIC_NAME = "/debug"
 ENCORDER_TOPIC_NAME = "/joint_states"
 JOINT_DATA = ['hip_cmd' , 'knee_cmd' , 'yaw_cmd' , 'hip_state' , 'knee_state'  , 'yaw_state']
 
