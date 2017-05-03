@@ -60,7 +60,7 @@ class PlotWidget(QWidget):
         self._if_preview = False
         self._if_start = False
 	self._if_pub = False
-        
+	
         #rostopic
         self.pub_topic_name = MOTOR_TOPIC_NAME
         self.sub_topic_name = ENCORDER_TOPIC_NAME
@@ -84,6 +84,9 @@ class PlotWidget(QWidget):
             self.comboBox_leg.addItem(key)
         for key in self.joint_name:
             self.comboBox_joint.addItem(key)
+	    
+	self.current_leg = self.comboBox_leg.currentText()
+	self.current_joint = self.comboBox_joint.currentText()	
         self.pushButton_open.clicked.connect(self.pB_open)
         self.pushButton_load.clicked.connect(self.pB_load)
         #self.label_start.setStyleSheet("background-color: rgb(128,255,0)")
@@ -118,7 +121,34 @@ class PlotWidget(QWidget):
 	try:
 	    self.lock.acquire()
 	    try:
-		self.curve['hip_state']['buff_y'].append(msg.position[0])
+		if "L-B" == self.current_leg:
+		    if "hip" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[0])
+		    elif "knee" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[1])
+		    elif "yaw" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[2])
+		elif "L-F" == self.current_leg:
+		    if "hip" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[3])
+		    elif "knee" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[4])
+		    elif "yaw" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[5])
+		elif "R-B" == self.current_leg:
+		    if "hip" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[6])
+		    elif "knee" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[7])
+		    elif "yaw" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[8])
+		elif "R-F" == self.current_leg:
+		    if "hip" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[9])
+		    elif "knee" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[10])
+		    elif "yaw" == self.current_joint:
+			self.curve['hip_state']['buff_y'].append(msg.position[11])
 		self.curve['hip_state']['buff_x'].append(rospy.get_time() - self.start_time)
 	    except AttributeError as e:
 		self.error = RosPlotException("invalid topic data")
@@ -134,7 +164,8 @@ class PlotWidget(QWidget):
         if ".json" in final_file_name:
             self._if_load = True
             self.enable_timer(enabled= True)
-            self.data_plot.add_curve(self.curve['hip_cmd']['topic_name'], final_file_name ,self.curve['hip_cmd']['buff_x_temp'], self.curve['hip_cmd']['buff_y_temp'])
+            self.data_plot.add_curve(self.curve['hip_cmd']['topic_name'], final_file_name ,
+	                             self.curve['hip_cmd']['buff_x_temp'], self.curve['hip_cmd']['buff_y_temp'])
 	    try:
 		with open(filename,'r') as f:
 		    self.curve_data = json.load(f)
@@ -142,13 +173,14 @@ class PlotWidget(QWidget):
 	    except Exception, e:
 		print Exception, ' : ', e
             #print self.curve_data['lf']['hip']['value']
-            current_leg = self.comboBox_leg.currentText()
-            current_joint = self.comboBox_joint.currentText()
-	    self.json2JointTrajectory(self.curve_data, current_leg, current_joint)
+            self.current_leg = self.comboBox_leg.currentText()
+            self.current_joint = self.comboBox_joint.currentText()
+	    self.json2JointTrajectory(self.curve_data, self.current_leg, self.current_joint)
             #print self.curve_data[current_leg][current_joint]['value']
             try:
-                self.data_list = self.curve_data[current_leg][current_joint]['value']
+                self.data_list = self.curve_data[self.current_leg][self.current_joint]['value']
             except Exception,e:
+		print "data_list is wrong!"
                 print Exception, ":",e
                  
     def pB_start(self):
@@ -181,10 +213,10 @@ class PlotWidget(QWidget):
                 
     def pB_pause(self):
         self._if_pause = not self._if_pause
-        if "Pause" == self.pushButton_pause.text():
-            self.pushButton_pause.setText('Re-Plot')
+        if "PAUSE" == self.pushButton_pause.text():
+            self.pushButton_pause.setText('RE-PLOT')
         else:
-            self.pushButton_pause.setText('Pause')
+            self.pushButton_pause.setText('PAUSE')
     
     def pB_preview(self):
         self._if_preview = True
@@ -223,11 +255,16 @@ class PlotWidget(QWidget):
                     self.curve['hip_cmd']['buff_y_temp'] = []
             except RosPlotException as e:
                 qWarning('PlotWidget : update_plot(): error in rosplot %s '%e)
-		
-	    #publish and register the topic from robot
+	    
+	    self.pub2debug()
+        if needs_redraw:
+            self.data_plot.redraw()
+    
+    def pub2debug(self):
+	#publish and register the topic from robot
 	if self._if_pub:
 	    joint_data = Float64MultiArray()
-	    joint_data.data = [0, 0, 0, 0, 0, 0, 0, 0]
+	    joint_data.data = [0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0]
 	    pub_leg = self.comboBox_leg.currentText()
 	    pub_joint = self.comboBox_joint.currentText()
 	    if self._if_load:
@@ -235,36 +272,42 @@ class PlotWidget(QWidget):
 		    if "L-F" == pub_leg:
 			if "hip" == pub_joint:
 			    joint_data.data[0] = data
-			else:
+			elif "knee" == pub_joint:
 			    joint_data.data[1] = data
+			else:
+			    joint_data.data[2] = data
 		    elif "L-B" == pub_leg:
 			if "hip" == pub_joint:
-			    joint_data.data[2] = data
-			else:
 			    joint_data.data[3] = data
-		    elif "R-F" == pub_leg:
-			if "hip" == pub_joint:
+			elif "knee" == pub_joint:
 			    joint_data.data[4] = data
 			else:
 			    joint_data.data[5] = data
-		    elif "R-B" == pub_leg:
+		    elif "R-F" == pub_leg:
 			if "hip" == pub_joint:
 			    joint_data.data[6] = data
-			else:
+			elif "knee" == pub_joint:
 			    joint_data.data[7] = data
-		    self.publish_command.publish(joint_data)	
-        if needs_redraw:
-            self.data_plot.redraw()
-     
+			else:
+			    joint_data.data[8] = data
+		    elif "R-B" == pub_leg:
+			if "hip" == pub_joint:
+			    joint_data.data[9] = data
+			elif "knee" == pub_joint:
+			    joint_data.data[10] = data
+			else:
+			    joint_data.data[11] = data
+		    self.publish_command.publish(joint_data)		
     def json2JointTrajectory(self,curve_data, current_leg, current_joint):
 	trajectory_data = JointTrajectoryPoint()
 	trajectory_data.positions = [0]
 	try:
 	    for i in range(len(curve_data['time'])):
-		trajectory_data.positions[0] = curve_data[current_leg][current_joint]['value'][i]
+		trajectory_data.positions[0] = float(curve_data[current_leg][current_joint]['value'][i])
 		trajectory_data.time_from_start.secs= curve_data['time'][i]
 		self.FollowJoint_publish.publish(trajectory_data)
 	except Exception,e:
+	    print "trajectory is wrong!"
 	    print Exception, ":", e
                
     def enable_timer(self , enabled = True):
