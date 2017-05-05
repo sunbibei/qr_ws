@@ -11,6 +11,7 @@ import time
 import threading
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
+import xml.etree.ElementTree as ET
 
 MAX_VALUE = 2
 MIN_VALUE = -2
@@ -43,7 +44,7 @@ class DragonDataControl(Plugin):
         # plugins at once. Also if you open multiple instances of your 
         # plugin at once, these lines add number to make it easy to 
         # tell from pane to pane.
-            
+        
         #init variable
         self.dragon_pointer = {}
         self.joint_name = JOINT_NAME
@@ -81,6 +82,20 @@ class DragonDataControl(Plugin):
             self._widget.comboBox_leg.addItem(key)
         for key in self.data_tpye:
             self._widget.comboBox_type.addItem(key)
+	    
+	#get slider limit
+	self.urdf_path = rp.get_path('qr_description') + '/urdf/dragon.urdf'
+	self.urdf_pointer = self.getLimit(self.urdf_path)
+	#print self.urdf_pointer
+	self.current_name = self.getCurrentName()
+	self.limits = {}
+	for i in range(len(self.current_name)):
+	    if "yaw" not in self.current_name[i]:
+		lower = self.urdf_pointer[self.current_name[i]]['lower']
+		upper = self.urdf_pointer[self.current_name[i]]['upper']
+		limit_factor = (upper - lower) / 100.0
+		self.limits[self.joint_name[i]] = {"limit" : limit_factor}
+	print self.limits
             
         self._widget.horizontalSlider_hip.valueChanged.connect(self.slider_changed)
         self._widget.horizontalSlider_knee.valueChanged.connect(self.slider_changed)
@@ -241,4 +256,34 @@ class DragonDataControl(Plugin):
 
     def pushButton_stop(self):
         self._if_load = False
+	
+    def getLimit(self, urdf_path):		
+	root = ET.parse(urdf_path)
+	joints = root.findall('joint')
+	joint_pointer = {}
+	for joint_list in joints:
+	    joint_children = joint_list.getchildren()
+	    for node in joint_children:
+		if node.tag == "limit":
+		    joint_pointer[joint_list.attrib['name']] = {"name" : joint_list.attrib['name'], 
+			                                        "upper" : float(node.attrib['upper']), "lower": float(node.attrib['lower']),
+			                                        "effort": float(node.attrib['effort']), "velocity": float(node.attrib['velocity'])}
+	return joint_pointer
+    
+    def getCurrentName(self):
+	current_leg = self._widget.comboBox_leg.currentText()
+	current_type = self._widget.comboBox_type.currentText()
+	names = []
+	if "L-F" == current_leg:
+	    name = "left_front_"
+	elif "L-B" == current_leg:
+	    name = "left_back_"
+	elif "R-F" == current_leg:
+	    name = "right_front_"
+	elif "R-B" == current_leg:
+	    name = "right_back_"
+	
+	for joint_name in self.joint_name:
+	    names.append(name + joint_name)
+	return names
 
