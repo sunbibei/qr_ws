@@ -168,7 +168,7 @@ TPCANMsg PropagateParser::packagePCAN(const std::string& name, Component<HwComma
   auto itr = cmd_composite.find(name);
   if (cmd_composite.end() != itr) {
     Motor::CmdTypeSp cmd = boost::dynamic_pointer_cast<Motor::CmdType>(itr->second);
-    LOG_WARNING << "mode is " << cmd->mode_;
+    //LOG_WARNING << "mode is " << cmd->mode_;
     if (std::string::npos != name.find(KNEE)){
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x11; // DATA[0] 用于确定膝关节和髋关节

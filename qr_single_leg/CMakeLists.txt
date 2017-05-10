@@ -12,7 +12,7 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
 endif()
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED urdf)
 find_package(Boost REQUIRED COMPONENTS thread)
 
 

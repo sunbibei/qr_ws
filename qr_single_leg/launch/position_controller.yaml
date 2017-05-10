@@ -1,4 +1,4 @@
 PositionController:
-   joint_0: "left_front_pitch"
-   joint_1: "left_front_hip"
-   joint_2: "left_front_knee"
+   joint_0: "right_front_yaw"
+   joint_1: "right_front_hip"
+   joint_2: "right_front_knee"

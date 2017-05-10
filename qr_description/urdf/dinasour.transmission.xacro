@@ -27,19 +27,19 @@
 		</transmission>
 	</xacro:macro>
 
-	<xacro:Trans Name="left_front_pitch" />
+	<xacro:Trans Name="left_front_yaw" />
 	<xacro:Trans Name="left_front_hip" />
 	<xacro:Trans Name="left_front_knee" />
 
-	<xacro:Trans Name="right_front_pitch" />
+	<xacro:Trans Name="right_front_yaw" />
 	<xacro:Trans Name="right_front_hip" />
 	<xacro:Trans Name="right_front_knee" />
 
-	<xacro:Trans Name="left_back_pitch" />
+	<xacro:Trans Name="left_back_yaw" />
 	<xacro:Trans Name="left_back_hip" />
 	<xacro:Trans Name="left_back_knee" />
 
-	<xacro:Trans Name="right_back_pitch" />
+	<xacro:Trans Name="right_back_yaw" />
 	<xacro:Trans Name="right_back_hip" />
 	<xacro:Trans Name="right_back_knee" />
 

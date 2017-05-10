@@ -9,10 +9,10 @@ const unsigned int Height = 50;
 const unsigned int Foot_Steps = 10;
 const unsigned int Swing_Height = 4;
 
-const unsigned int Init_Num = 1000;
-const unsigned int Swing_Num  = 1000;
-const unsigned int Stance_Num = 1000;
-const unsigned int Update_Rate = 1000;
+const unsigned int Init_Num = 100;
+const unsigned int Swing_Num  = 100;
+const unsigned int Stance_Num = 100;
+const unsigned int Update_Rate = 100;
 
 const double L0 = 4;
 const double L1 = 27.3;

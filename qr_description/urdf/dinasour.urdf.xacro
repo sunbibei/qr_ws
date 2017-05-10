@@ -70,7 +70,7 @@
 				<inertia ixx="${1/12*Mass*(3*SHOD_R*SHOD_R+SHOD_L*SHOD_L)}" ixy="0" ixz="0" iyy="${1/12*Mass*(3*SHOD_R*SHOD_R+SHOD_L*SHOD_L)}" iyz="0" izz="${1/2*Mass*SHOD_R*SHOD_R}"/>
 			</inertial>
 		</link>
-		<joint name="${Name}_pitch" type="revolute">
+		<joint name="${Name}_yaw" type="revolute">
 			<origin xyz="${X_Dir*(BODY_X/2-SHOD_L/2)} ${Y_Dir*(BODY_Y/2-SHOD_R)} ${-SHOD_R*2}" rpy="0 0 0"/>
 			<parent link="${Parent_Link}"/>
 			<child link="${Name}_shoulder"/>
