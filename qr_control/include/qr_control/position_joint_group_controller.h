@@ -47,6 +47,8 @@ private:
                 int Loop_Count;
                 unsigned int Time_Order = 0;
                 unsigned int Leg_Order = 1;
+                double Init_Pos[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+                // Angle Angle_Group = {{0,0,-0.547},{0,0,-0.547},{0,0,0.547},{0,0,0.547}};
                 Angle Angle_Group = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
                 Position Foot_Position_Group = {{Body_L, Body_W, -L0 - L1 - L2},
                                                 {Body_L, -Body_W, -L0 - L1 - L2},

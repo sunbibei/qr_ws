@@ -9,9 +9,9 @@
  </xacro:macro>
 
 	<xacro:Links Name="body"                 Color="Green"/>
-	<xacro:Links Name="right_front_shoulder"  Color="Turquoise"/>
-	<xacro:Links Name="right_front_leg"       Color="Blue"/>
-	<xacro:Links Name="right_front_shine"     Color="Red"/>
+	<xacro:Links Name="left_front_shoulder"  Color="Turquoise"/>
+	<xacro:Links Name="left_front_leg"       Color="Blue"/>
+	<xacro:Links Name="left_front_shine"     Color="Red"/>
 
 	<!-- ROS-Control plugin -->
  <gazebo>
