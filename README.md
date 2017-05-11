@@ -1,11 +1,7 @@
 # DRAGON ROBOT
 
 ## OVERVIEW
-`dragon_robot` package, 是电子科技大学MII研究所恐龙机器人软件包. 依赖于ROS环境, 以catkin方式管理, 编译. 文件系统如下所示:
-
-<center>
-![](qr_ws/img/tree.png)
-</center>
+`dragon_robot` package, 是电子科技大学MII研究所恐龙机器人软件包. 依赖于ROS环境, 以catkin方式管理, 编译. 
 
 将该目录放到自己的catkin工作空间中的src文件夹下(例如`~/catkin_ws/src/'), 使用`catkin_make`编译即可.
 
@@ -32,6 +28,7 @@
 ## `qr_moveit_config`
 
 该功能包, 由`moveit_assistant`包自动生成, 可以使用MoveIt!配置恐龙机器人在仿真中进行轨迹规划.
+
 ------------------------------------Deleted------------------------------------
 
 ## `qr_driver`

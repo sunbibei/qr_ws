@@ -102,8 +102,9 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
         switch (Time_Order)
         {
         case 0: //init height
-                // pose_init();
+                pose_init();
                 break;
+                
         case 1://assign next footholder value
                 assign_next_foot();
                 break;
@@ -113,6 +114,7 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
         case 3: //swing leg
                 swing_control();
                 break;
+                
         default: break;
         }
 

@@ -275,7 +275,6 @@ void RosWrapper::publishRTMsg() {
 
   t0 = std::chrono::high_resolution_clock::now();
   while (alive_ && ros::ok()) {
-    // TODO 待实现
     sensor_msgs::JointState joint_msg;
     robot_->getJointStates(joint_msg);
     joint_msg.header.stamp = ros::Time::now();

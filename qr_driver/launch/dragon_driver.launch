@@ -29,7 +29,7 @@
   <rosparam if="$(arg use_ros_control)" file="$(find qr_driver)/config/controllers.yaml" command="load"/>
 
   <!-- spawn controller manager -->
-  <node if="$(arg use_ros_control)" name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+  <node if="$(arg use_ros_control)" name="jnt_state_ctrler_spawner" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" args="--shutdown-timeout -1 joint_state_controller" />
 
   <!-- load other controller --> 

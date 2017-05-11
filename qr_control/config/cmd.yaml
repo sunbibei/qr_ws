@@ -17,3 +17,6 @@ data:
   - 0 # "right_front_hip"
   - 0 # "right_front_knee"
   - 0 # "right_front_yaw"
+
+# Open termial, and run:
+# rostopic pub --once /jnt_group_controller/command std_msgs/Float64MultiArray -f ~/qr_ws/src/qr_ws/qr_control/config/cmd.yaml
