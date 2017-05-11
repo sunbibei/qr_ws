@@ -26,7 +26,10 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-set(DDP_FILES  src/position_joint_group_controller.cpp)
+set(DDP_FILES
+  src/position_joint_group_controller.cpp
+  src/position_reset.cpp)
+  
 add_library(qr_control_lib ${DDP_FILES} )
 
  target_link_libraries(qr_control_lib

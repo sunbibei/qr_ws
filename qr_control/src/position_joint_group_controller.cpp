@@ -26,7 +26,7 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
         {
                 std::string joint_name;
                 std::string param_name = std::string("joint_" + to_string(n_joints_));
-                if (n.getParam(param_name.c_str(), joint_name))
+                if (ros::param::get(param_name.c_str(), joint_name))
                 {
                         joint_names_.push_back(joint_name);
                 }

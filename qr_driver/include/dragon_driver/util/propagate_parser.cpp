@@ -126,9 +126,10 @@ bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_compo
    } else if(msg.DATA[0] >= 0x81 && msg.DATA[0] <=0x84){
       dataType_ = "ele_current";
       //printf("name is %s",name);
+      /*
       printf("write_msg is: 0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
        msg.DATA[0],msg.DATA[1],msg.DATA[2],msg.DATA[3],msg.DATA[4],
-       msg.DATA[5],msg.DATA[6]);
+       msg.DATA[5],msg.DATA[6]);*/
    }
 
     name = leg_name_ + joint_name_;

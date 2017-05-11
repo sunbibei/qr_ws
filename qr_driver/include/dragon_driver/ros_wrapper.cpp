@@ -281,7 +281,7 @@ void RosWrapper::publishRTMsg() {
     joint_msg.header.stamp = ros::Time::now();
     /* ---------------------------------------------- */
     // TODO
-    if (joint_msg.)
+    // if (joint_msg.)
 
     /* ---------------------------------------------- */
     joint_pub.publish(joint_msg);

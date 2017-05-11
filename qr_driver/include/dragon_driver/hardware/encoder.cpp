@@ -40,7 +40,8 @@ HwStateSp Encoder::getStataHandle() {
 
 HwStateSp Encoder::getState(const std::string& name) {
   if (0 == name.compare(name_)) {
-    return HwStateSp(new StateType(state_->pos_, state_->vel_, state_->ele_current_));
+    return HwStateSp(new StateType(state_->pos_ / 10000,
+      state_->vel_ / 10000, state_->ele_current_));
   } else {
     LOG_WARNING << "Requset the ERROR name state (actual vs request): ("
         << name_ << " vs " << name << ")";
