@@ -120,9 +120,9 @@ class DragonDataControl(Plugin):
         
     def slider_changed(self):
         if self._if_slider:
-            self.dragon_pointer['hip']['value'] = (self._widget.horizontalSlider_hip.value() -50 ) * self.factor
-            self.dragon_pointer['knee']['value'] = (self._widget.horizontalSlider_knee.value() - 50) * self.factor
-            self.dragon_pointer['yaw']['value'] = (self._widget.horizontalSlider_yaw.value() -50)* self.factor
+            self.dragon_pointer['hip']['value'] = (self._widget.horizontalSlider_hip.value() ) * self.factor
+            self.dragon_pointer['knee']['value'] = (self._widget.horizontalSlider_knee.value()) * self.factor
+            self.dragon_pointer['yaw']['value'] = (self._widget.horizontalSlider_yaw.value())* self.factor
             self.update_lineEdit()
         self._if_slider = True
     
@@ -141,7 +141,7 @@ class DragonDataControl(Plugin):
         self._if_edit = False
         
     def update_slider(self):
-        self._widget.horizontalSlider_hip.setValue(self.dragon_pointer['hip']['value']/self.factor)
+        self._widget.horizontalSlider_hip.setValue(self.dragon_pointer['hip']['value']/self.factor )
         self._widget.horizontalSlider_knee.setValue(self.dragon_pointer['knee']['value']/self.factor)
         self._widget.horizontalSlider_yaw.setValue(self.dragon_pointer['yaw']['value']/self.factor)
         self._if_slider = False

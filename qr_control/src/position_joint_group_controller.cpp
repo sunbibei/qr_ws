@@ -65,8 +65,10 @@ void PositionJointGroupController::starting(const ros::Time& time)
         for(unsigned int i=0; i<n_joints_; i++)
         {
                 commands[i]=joints_[i].getPosition();
+                //std::cout<<commands[i]<<std::endl;
         }
         forward_kinematics();
+
 }
 /**************************************************************************
    Author: WangShanren
@@ -78,7 +80,7 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
         switch (Time_Order)
         {
         case 0: //init height
-                pose_init();
+                // pose_init();
                 break;
         case 1://assign next footholder value
                 assign_next_foot();

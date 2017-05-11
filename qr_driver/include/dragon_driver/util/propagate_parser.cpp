@@ -9,9 +9,13 @@
 
 namespace middleware {
 
-PropagateParser::PropagateParser() {
-  // TODO Auto-generated constructor stub
-  position_ = 0;
+PropagateParser::PropagateParser() :
+  position_(0), last_position_(0.0),
+  velocity_(0), last_velocity_(0.0),
+  ele_current_(0), last_ele_current_(0.0),
+  leg_name_("left_front"), joint_name_("_knee"),
+  dataType_("position") {
+  /*position_ = 0;
   last_position_ = 0.0;
   velocity_ = 0;
   last_velocity_ = 0.0;
@@ -19,11 +23,11 @@ PropagateParser::PropagateParser() {
   last_ele_current_ = 0.0;
   leg_name_ = "left_front";
   joint_name_ = "_knee";
-  dataType_ = "position";
+  dataType_ = "position";*/
 }
 
 PropagateParser::~PropagateParser() {
-  // TODO Auto-generated destructor stub
+  // Nothing to do here
 }
 
 bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_composite){
@@ -32,76 +36,94 @@ bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_compo
   joint_name_ = "";
   //DATA[0]确定四条腿
    switch(msg.ID) {
-   case 0x02:{
+   case 0x02:
+   {
      leg_name_ = LEFT_FRONT;
      break;
    }
-   case 0x03:{
+   case 0x03:
+   {
      leg_name_ = LEFT_BACK;
      break ;
    }
-   case 0x04:{
+   case 0x04:
+   {
      leg_name_ = RIGHT_FRONT;
      break;
    }
-   case 0x05:{
+   case 0x05:
+   {
      leg_name_ = RIGHT_BACK;
      break;
    }
-   default:break;
+   default: {
+    LOG_WARNING << "ERROR in msg.ID";
+    break;
+   }
    }
 
    switch(msg.DATA[0]){
     case 0x41:
-    case 0x61:{
+    case 0x61:
+    {
       joint_name_ = "_knee";
       break;
     }
     case 0x42:
-    case 0x62:{
+    case 0x62:
+    {
       joint_name_ = "_hip";
       break;
     }
     case 0x43:
-    case 0x63:{
+    case 0x63:
+    {
       joint_name_ = "_yaw";
       break;
     }
-    default:break;
+    default: {
+      // LOG_WARNING << "ERROR in msg.DATA[0]";
+      break;
+    }
    }
 
    //msg.DATA[0] deside ele_cur
    switch(msg.DATA[0]) {
-    case 0x81:{
+    case 0x81:
+    {
       leg_name_ = LEFT_BACK;
       joint_name_ = "_hip";
       break;
     }
-    case 0x82:{
+    case 0x82:
+    {
       leg_name_ = LEFT_BACK;
       joint_name_ = "_knee";
       break;
     }
-    case 0x83: {
+    case 0x83:
+    {
       leg_name_ = LEFT_BACK;
       joint_name_ = "_yaw";
       break;
     }
-    case 0x84:{
+    case 0x84:
+    {
       leg_name_ = LEFT_FRONT;
       joint_name_ = "_hip";
       break;
     }
-    default:break;
+    default: {
+      // LOG_WARNING << "ERROR in msg.DATA[0]";
+      break;
+    }
    }
    //0x42~0x45表示位置信息， 0x64~0x67表示速度信息
    if(msg.DATA[0] <= 0x43 && msg.DATA[0] >= 0x41 ){
      dataType_ = "position";
-   }
-   else if(msg.DATA[0] >=0x61 && msg.DATA[0] <= 0x63){
+   } else if(msg.DATA[0] >=0x61 && msg.DATA[0] <= 0x63){
      dataType_ = "velocity";
-   }
-   else if(msg.DATA[0] >= 0x81 && msg.DATA[0] <=0x84){
+   } else if(msg.DATA[0] >= 0x81 && msg.DATA[0] <=0x84){
       dataType_ = "ele_current";
       //printf("name is %s",name);
       printf("write_msg is: 0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
@@ -112,7 +134,7 @@ bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_compo
     name = leg_name_ + joint_name_;
     //LOG_WARNING << "name is " << name; 
     auto itr = state_composite.find(name);
-    if (state_composite.end() != itr){
+    if (state_composite.end() != itr) {
       Encoder::StateTypeSp act_state
         = boost::dynamic_pointer_cast<Encoder::StateType>(itr->second);
        auto current_time = std::chrono::high_resolution_clock::now();

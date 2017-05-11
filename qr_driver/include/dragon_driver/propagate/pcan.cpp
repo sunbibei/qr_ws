@@ -42,8 +42,8 @@ bool PcanChannel::write(const std::vector<std::string>& names) {
       pcan_status_=CAN_Write(PCAN_USBBUS1, &msg_);
       printf("leg is 0x%02x ", msg_.ID);
       printf("write_msg is: 0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
-       msg_.DATA[0],msg_.DATA[1],msg_.DATA[2],msg_.DATA[3],msg_.DATA[4],
-       msg_.DATA[5],msg_.DATA[6]);
+      msg_.DATA[0],msg_.DATA[1],msg_.DATA[2],msg_.DATA[3],msg_.DATA[4],
+      msg_.DATA[5],msg_.DATA[6]);
       if (PCAN_ERROR_OK != pcan_status_) {
         LOG(ERROR) << "PCAN_WRITE IS FALSE !";
       }
@@ -57,7 +57,7 @@ bool PcanChannel::read() {
   // 也可以从PCAN的数据中， 明确到底是什么类型的State
   // 转化为对应类型的State, 在进行赋值
   // LOG_INFO << "PCAN read: ";
-  while ((pcan_status_=CAN_Read(PCAN_USBBUS1, &rec_msg_, NULL)) == PCAN_ERROR_QRCVEMPTY){
+  while ((pcan_status_ = CAN_Read(PCAN_USBBUS1, &rec_msg_, NULL)) == PCAN_ERROR_QRCVEMPTY){
     usleep(1000);
   }
   //LOG_INFO<<"PCAN READ OK";
