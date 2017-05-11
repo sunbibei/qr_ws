@@ -2,7 +2,8 @@
 
 namespace qr_control {
 
-PositionResetController::PositionResetController() {
+PositionResetController::PositionResetController() :
+  is_control_(false) {
 }
 
 PositionResetController::~PositionResetController() {
@@ -26,7 +27,14 @@ bool PositionResetController::init(hardware_interface::PositionJointInterface *r
         ++n_joints;
     }
 
+    reset_sub_ = n.subscribe<std_msgs::Bool>("JointReset", 1,
+       &PositionResetController::cbForReset, this);
+
     return true;
+}
+
+void PositionResetController::cbForReset(const std_msgs::BoolConstPtr& msg) {
+  is_control_ = msg->data;
 }
 
 /**************************************************************************
@@ -43,16 +51,19 @@ void PositionResetController::starting(const ros::Time& time) {
    Description: design state meachine: Adjust CoG <---> Switch Swing Leg
 **************************************************************************/
 void PositionResetController::update(const ros::Time&, const ros::Duration&) {
-    for(auto iter = joint_handles_.begin();
-        iter != joint_handles_.end();
-        ++iter) {
-        // if (joint_handles_.getPosition() != 0) {
+  if (!is_control_) return;
 
-        // }
-        std::cout << iter->getPosition();
-    }
-    std::cout << std::endl;
-
+  is_control_ = false;
+  for(auto iter = joint_handles_.begin();
+      iter != joint_handles_.end(); ++iter) {
+      iter->setCommand(1);
+      // if (abs(iter->getPosition()) >= 0.01) {
+      //   iter->setCommand(0.0);
+      //   is_control_ = true;
+      // }
+      // std::cout << iter->getPosition() << ", ";
+  }
+  // std::cout << std::endl;
 }
 
 

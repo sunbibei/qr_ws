@@ -74,8 +74,8 @@ bool Middleware::init(ros::NodeHandle& nh) {
 
 bool Middleware::start() {
   // For Debug
-  propagate_->check();
-  hw_unit_->check();
+  // propagate_->check();
+  // hw_unit_->check();
   propagate_thread_ = new std::thread(&Middleware::runPropagate, this);
   LOG_INFO << "The propagate thread has started to run!";
   return true;

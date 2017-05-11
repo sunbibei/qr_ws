@@ -57,7 +57,7 @@ bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_compo
      break;
    }
    default: {
-    LOG_WARNING << "ERROR in msg.ID";
+    // LOG_WARNING << "ERROR in msg.ID";
     break;
    }
    }
@@ -195,31 +195,31 @@ TPCANMsg PropagateParser::packagePCAN(const std::string& name, Component<HwComma
     if (std::string::npos != name.find(KNEE)){
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x11; // DATA[0] 用于确定膝关节和髋关节
-        position_ = 10000 * abs(cmd->command_);
+        position_ = 10000 * cmd->command_;
         memcpy(msg_.DATA + 3 , &position_ , 2 * sizeof(msg_.DATA));
       } else if (Motor::CmdType::MODE_VEL_ == cmd->mode_){
         msg_.DATA[0] = 0x21; // DATA[0] 用于确定膝关节和髋关节
-        velocity_ = 10000 * abs(cmd->command_);
+        velocity_ = 10000 * cmd->command_;
         memcpy(msg_.DATA + 3 , &velocity_ , 2 * sizeof(msg_.DATA));
       }
     } else if (std::string::npos != name.find(HIP)) {
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x12; // DATA[0] 用于确定膝关节和髋关节
-        position_ = 10000 * abs(cmd->command_);
+        position_ = 10000 * cmd->command_;
         memcpy(msg_.DATA + 3 , &position_ , 2 * sizeof(msg_.DATA));
       } else if (Motor::CmdType::MODE_VEL_ == cmd->mode_) {
         msg_.DATA[0] = 0x22; // DATA[0] 用于确定膝关节和髋关节
-        velocity_ = 10000 * abs(cmd->command_);
+        velocity_ = 10000 * cmd->command_;
         memcpy(msg_.DATA + 3 , &velocity_ , 2 * sizeof(msg_.DATA));
       }
     } else if (std::string::npos != name.find(YAW)) {
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x13; // DATA[0] 用于确定膝关节和髋关节,yaw
-        position_ = 10000 * abs(cmd->command_);
+        position_ = 10000 * cmd->command_;
         memcpy(msg_.DATA + 3 , &position_ , 2 * sizeof(msg_.DATA));
       } else if (Motor::CmdType::MODE_VEL_ == cmd->mode_) {
         msg_.DATA[0] = 0x23; // DATA[0] 用于确定膝关节和髋关节
-        velocity_ = 10000 * abs(cmd->command_);
+        velocity_ = 10000 * cmd->command_;
         memcpy(msg_.DATA + 3 , &velocity_ , 2 * sizeof(msg_.DATA));
       }
     }

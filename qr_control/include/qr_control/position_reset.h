@@ -5,8 +5,7 @@
 #include <iostream>
 #include <ros/ros.h>
 #include <ros/time.h>
-
-#include <ros/node_handle.h>
+#include <std_msgs/Bool.h>
 
 #include <hardware_interface/joint_command_interface.h>
 #include <controller_interface/controller.h>
@@ -23,8 +22,13 @@ public:
   void starting(const ros::Time& time);
   void update(const ros::Time& time, const ros::Duration& period);
 
+  void cbForReset(const std_msgs::BoolConstPtr&);
+
 private:
   std::vector<hardware_interface::JointHandle> joint_handles_;
+  ros::Subscriber reset_sub_;
+
+  bool is_control_;
 };
 
 }

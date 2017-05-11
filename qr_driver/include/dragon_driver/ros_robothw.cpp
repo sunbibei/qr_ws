@@ -102,6 +102,10 @@ void RosRobotHW::write() {
     robot_->executeJointPositions(joint_names_, joint_velocity_command_);
   } else if (position_interface_running_) {
     robot_->executeJointPositions(joint_names_, joint_position_command_);
+    //for (int i = 0; i < joint_names_.size(); ++i) {
+    //  std::cout << joint_names_[i] << ":" << joint_position_command_[i] << " ";
+    //}
+    //std::cout << std::endl;
   } else if (effort_interface_running_) {
     LOG(WARNING) << "NO IMPLEMENTES"; // Nothing to do here
   } else {
