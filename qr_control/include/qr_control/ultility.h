@@ -12,12 +12,11 @@ const unsigned int Swing_Height = 4;
 const unsigned int Init_Num = 100;
 const unsigned int Swing_Num  = 100;
 const unsigned int Stance_Num = 100;
-const unsigned int Update_Rate = 100;
+const unsigned int Update_Rate = 1000;
 
 const double L0 = 4;
 const double L1 = 27.3;
 const double L2 = 22.5;
-
 
 const double Body_L = 20;
 const double Body_W = 13.5;

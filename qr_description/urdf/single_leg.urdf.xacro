@@ -70,7 +70,7 @@
 				<inertia ixx="${1/12*Mass*(3*SHOD_R*SHOD_R+SHOD_L*SHOD_L)}" ixy="0" ixz="0" iyy="${1/12*Mass*(3*SHOD_R*SHOD_R+SHOD_L*SHOD_L)}" iyz="0" izz="${1/2*Mass*SHOD_R*SHOD_R}"/>
 			</inertial>
 		</link>
-		<joint name="${Name}_yaw" type="revolute">
+		<joint name="${Name}_pitch" type="revolute">
 			<origin xyz="${X_Dir*(BODY_X/2-SHOD_L/2)} ${Y_Dir*(BODY_Y/2-SHOD_R)} ${-SHOD_R*2}" rpy="0 0 0"/>
 			<parent link="${Parent_Link}"/>
 			<child link="${Name}_shoulder"/>
@@ -146,11 +146,11 @@
 	<!--********  LINKS and JOINTS defined by MACRO TEMPLATES  ********-->
 	<!--***************************************************************-->
 	<xacro:Body Name="body" Mass="10"/>
-	<xacro:Shoulder Name="right_front"  Mass="1" Parent_Link="body" X_Dir = "1"  Y_Dir = "-1"/>
+	<xacro:Shoulder Name="left_front"  Mass="1" Parent_Link="body" X_Dir = "1"  Y_Dir = "-1"/>
 
-	<xacro:LEG Name="right_front"   Mass="1" Limit_Up = "2" Limit_Low="0"/>
+	<xacro:LEG Name="left_front"   Mass="1" Limit_Up = "2" Limit_Low="0"/>
 
-	<xacro:SHINE Name="right_front"  Mass="1" Limit_Up = "0" Limit_Low="-2"/>
+	<xacro:SHINE Name="left_front"  Mass="1" Limit_Up = "0" Limit_Low="-2"/>
 
 	<link name="world"/>
 	<joint name="base_fixed" type="fixed">

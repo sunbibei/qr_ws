@@ -156,10 +156,10 @@
 	<xacro:LEG Name="left_back"     Mass="1" Limit_Up = "2" Limit_Low="-2"/>
 	<xacro:LEG Name="right_back"    Mass="1" Limit_Up = "2" Limit_Low="-2"/>
 
-	<xacro:SHINE Name="left_front"  Mass="1" Limit_Up = "2" Limit_Low="-2"/>
-	<xacro:SHINE Name="right_front" Mass="1" Limit_Up = "2" Limit_Low="-2"/>
-	<xacro:SHINE Name="left_back"   Mass="1" Limit_Up = "2" Limit_Low="-2"/>
-	<xacro:SHINE Name="right_back"  Mass="1" Limit_Up = "2" Limit_Low="-2"/>
+	<xacro:SHINE Name="left_front"  Mass="1" Limit_Up = "2" Limit_Low="-2" />
+	<xacro:SHINE Name="right_front" Mass="1" Limit_Up = "2" Limit_Low="-2" />
+	<xacro:SHINE Name="left_back"   Mass="1" Limit_Up = "2" Limit_Low="-2" />
+	<xacro:SHINE Name="right_back"  Mass="1" Limit_Up = "2" Limit_Low="-2" />
 
 	<link name="world"/>
 	<joint name="base_fixed" type="fixed">

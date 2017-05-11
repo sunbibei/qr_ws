@@ -62,13 +62,35 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
 **************************************************************************/
 void PositionJointGroupController::starting(const ros::Time& time)
 {
-        for(unsigned int i=0; i<n_joints_; i++)
-        {
-                commands[i]=joints_[i].getPosition();
-                //std::cout<<commands[i]<<std::endl;
-        }
+        Angle_ptr->lb.hip  = joints_[0].getPosition();
+        Angle_ptr->lb.knee = joints_[1].getPosition();
+        Angle_ptr->lb.pitch= joints_[2].getPosition();
+        Angle_ptr->lf.hip  = joints_[3].getPosition();
+        Angle_ptr->lf.knee = joints_[4].getPosition();
+        Angle_ptr->lf.pitch= joints_[5].getPosition();
+
+        Angle_ptr->rb.hip  = joints_[6].getPosition();
+        Angle_ptr->rb.knee = joints_[7].getPosition();
+        Angle_ptr->rb.pitch= joints_[8].getPosition();
+        Angle_ptr->rf.hip  = joints_[9].getPosition();
+        Angle_ptr->rf.knee = joints_[10].getPosition();
+        Angle_ptr->rf.pitch= joints_[11].getPosition();
+
         forward_kinematics();
 
+        Init_Pos[0] = fabs(Pos_ptr->lf.z);
+        Init_Pos[1] = fabs(Pos_ptr->rf.z);
+        Init_Pos[2] = fabs(Pos_ptr->lb.z);
+        Init_Pos[3] = fabs(Pos_ptr->rb.z);
+        Init_Pos[4] = Pos_ptr->lf.y;
+        Init_Pos[5] = Pos_ptr->rf.y;
+        Init_Pos[6] = Pos_ptr->lb.y;
+        Init_Pos[7] = Pos_ptr->rb.y;
+        Init_Pos[8] = Pos_ptr->lf.x;
+        Init_Pos[9] = Pos_ptr->rf.x;
+        Init_Pos[10]= Pos_ptr->lb.x;
+        Init_Pos[11]= Pos_ptr->rb.x;
+        // std::cout<<"Angle_ptr->lf:"<<Angle_ptr->lf.knee<<std::endl;
 }
 /**************************************************************************
    Author: WangShanren
@@ -116,7 +138,7 @@ void PositionJointGroupController::update(const ros::Time& time, const ros::Dura
 
 void PositionJointGroupController::pose_init()
 {
-        float adj = fabs(L0 + L1 + L2 - Height);//TODO
+        // float adj = fabs(L0 + L1 + L2 - Height);//TODO
 
         if(Loop_Count>Init_Num)//TODO
         {
@@ -125,10 +147,20 @@ void PositionJointGroupController::pose_init()
                 return;
         }
 
-        Pos_ptr->rb.z = Pos_ptr->rf.z = Pos_ptr->lb.z = Pos_ptr->lf.z = -(L0 + L1 + L2) + get_adj_pos(adj, Loop_Count, Init_Num);
+        Pos_ptr->lf.z = -Init_Pos[0] + get_adj_pos(fabs(Init_Pos[0]-Height), Loop_Count, Init_Num);
+        Pos_ptr->rf.z = -Init_Pos[1] + get_adj_pos(fabs(Init_Pos[1]-Height), Loop_Count, Init_Num);
+        Pos_ptr->lb.z = -Init_Pos[2] + get_adj_pos(fabs(Init_Pos[2]-Height), Loop_Count, Init_Num);
+        Pos_ptr->rb.z = -Init_Pos[3] + get_adj_pos(fabs(Init_Pos[3]-Height), Loop_Count, Init_Num);
 
-        // Pos_ptr->rf.x = Pos_ptr->lf.x = Body_L + get_adj_pos(5, Loop_Count, Init_Num);
-        // Pos_ptr->rb.x = Pos_ptr->lb.x = -Body_L + get_adj_pos(5, Loop_Count, Init_Num);
+        Pos_ptr->lf.y = Init_Pos[4] + get_adj_pos(Body_W-Init_Pos[4], Loop_Count, Init_Num);
+        Pos_ptr->rf.y = Init_Pos[5] + get_adj_pos(-Body_W-Init_Pos[5], Loop_Count, Init_Num);
+        Pos_ptr->lb.y = Init_Pos[6] + get_adj_pos(Body_W-Init_Pos[6], Loop_Count, Init_Num);
+        Pos_ptr->rb.y = Init_Pos[7] + get_adj_pos(-Body_W-Init_Pos[7], Loop_Count, Init_Num);
+
+        Pos_ptr->lf.x = Init_Pos[8] + get_adj_pos(Body_L-Init_Pos[8], Loop_Count, Init_Num);
+        Pos_ptr->rf.x = Init_Pos[9] + get_adj_pos(Body_L-Init_Pos[9], Loop_Count, Init_Num);
+        Pos_ptr->lb.x = Init_Pos[10]+ get_adj_pos(-Body_L-Init_Pos[10], Loop_Count, Init_Num);
+        Pos_ptr->rb.x = Init_Pos[11]+ get_adj_pos(-Body_L-Init_Pos[11], Loop_Count, Init_Num);
 
         reverse_kinematics();
 }

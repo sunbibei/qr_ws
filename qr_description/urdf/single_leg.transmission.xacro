@@ -27,11 +27,11 @@
 		</transmission>
 	</xacro:macro>
 
-	<xacro:Trans Name="right_front_yaw" />	
+	<xacro:Trans Name="left_front_pitch" />	
 
-	<xacro:Trans Name="right_front_hip" />
+	<xacro:Trans Name="left_front_hip" />
 
-	<xacro:Trans Name="right_front_knee" />
+	<xacro:Trans Name="left_front_knee" />
 
 
 </robot>
