@@ -62,12 +62,12 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
 **************************************************************************/
 void PositionJointGroupController::starting(const ros::Time& time)
 {
-        std::cout<<"get_position"<<std::endl;
-        for(int i=0;i<12;i++)
-        {
-            std::cout<<joints_[i].getPosition()<<" ";
-        }
-        std::cout<<std::endl;
+        // std::cout<<"get_position"<<std::endl;
+        // for(int i=0;i<12;i++)
+        // {
+        //     std::cout<<joints_[i].getPosition()<<" ";
+        // }
+        // std::cout<<std::endl;
 
         Angle_ptr->lb.hip  = joints_[0].getPosition();
         Angle_ptr->lb.knee = joints_[1].getPosition();
@@ -84,7 +84,7 @@ void PositionJointGroupController::starting(const ros::Time& time)
         Angle_ptr->rf.pitch= joints_[11].getPosition();
 
         forward_kinematics();
-        std::cout<<"starting"<<Pos_ptr->lf.z<<" "<<Pos_ptr->rf.z<<" "<<Pos_ptr->lb.z<<" "<<Pos_ptr->rb.z<<std::endl;
+        // std::cout<<"starting"<<Pos_ptr->lf.z<<" "<<Pos_ptr->rf.z<<" "<<Pos_ptr->lb.z<<" "<<Pos_ptr->rb.z<<std::endl;
 
         Init_Pos[0] = Pos_ptr->lf.z;
         Init_Pos[1] = Pos_ptr->rf.z;
@@ -158,7 +158,6 @@ void PositionJointGroupController::pose_init()
                 std::cin>>Time_Order;
                 return;
         }
-        std::cout<<"get adj:"<<-Height-Init_Pos[0]<<std::endl;
         Pos_ptr->lf.z = Init_Pos[0] + get_adj_pos(-Height-Init_Pos[0], Loop_Count, Init_Num);
         Pos_ptr->rf.z = Init_Pos[1] + get_adj_pos(-Height-Init_Pos[1], Loop_Count, Init_Num);
         Pos_ptr->lb.z = Init_Pos[2] + get_adj_pos(-Height-Init_Pos[2], Loop_Count, Init_Num);
@@ -173,7 +172,7 @@ void PositionJointGroupController::pose_init()
         Pos_ptr->rf.x = Init_Pos[9] + get_adj_pos(Body_L-Init_Pos[9], Loop_Count, Init_Num);
         Pos_ptr->lb.x = Init_Pos[10]+ get_adj_pos(-Body_L-Init_Pos[10], Loop_Count, Init_Num);
         Pos_ptr->rb.x = Init_Pos[11]+ get_adj_pos(-Body_L-Init_Pos[11], Loop_Count, Init_Num);
-        std::cout<<"pose_init"<<Pos_ptr->lf.z<<" "<<Pos_ptr->rf.z<<" "<<Pos_ptr->lb.z<<" "<<Pos_ptr->rb.z<<std::endl;
+        // std::cout<<"pose_init"<<Pos_ptr->lf.z<<" "<<Pos_ptr->rf.z<<" "<<Pos_ptr->lb.z<<" "<<Pos_ptr->rb.z<<std::endl;
         reverse_kinematics();
 }
 float PositionJointGroupController::get_adj_pos(float Adj, int t, int T)
