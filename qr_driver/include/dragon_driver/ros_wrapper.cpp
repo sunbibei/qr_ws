@@ -8,6 +8,8 @@
 #include "ros_robothw.h"
 #include "ros_wrapper.h"
 
+#include <ros/package.h>
+
 namespace middleware {
 
 RosWrapper* RosWrapper::instance_ = nullptr;
@@ -109,7 +111,10 @@ bool RosWrapper::start() {
 #ifdef DEBUG_TOPIC
   cmd_sub_ = nh_.subscribe<std_msgs::Float64MultiArray>("debug", 100,
       &RosWrapper::cbForDebug, this);
+  cmd_pub_ = nh_.advertise<sensor_msgs::JointState>("/JointCommand", 10);
 #endif
+
+  LOG_ERROR << ros::package::getPath("");
   return true;
 }
 
@@ -364,15 +369,28 @@ void RosWrapper::cbForDebug(const std_msgs::Float64MultiArrayConstPtr& msg) {
   }*/
   // 实现方式2
   LOG_INFO << "test write style 2";
+  cmd_msg_.name.clear();
+  cmd_msg_.position.clear();
+
   std::vector<HwCmdSp> cmd_vec;
   std::vector<std::string> cmd_name;
   int index = 0;
   for (auto& jnt : robot_->jnt_names_) {
+    if (msg->data[index] == 1000 ) {
+      ++index;
+      continue;
+    }
     Motor::CmdTypeSp cmd(new Motor::CmdType(msg->data[index], Motor::CmdType::MODE_POS_));
-    ++index;
     cmd_vec.push_back(cmd);
     cmd_name.push_back(jnt);
+    /*TODO**************************************************/
+    cmd_msg_.name.push_back(jnt);
+    cmd_msg_.position.push_back(msg->data[index]);
+    ++index;
   }
+  /*TODO**************************************************/
+  cmd_pub_.publish(cmd_msg_);
+
   robot_->addCommand(cmd_name, cmd_vec);
 
   LOG_INFO << "Add Command Successful";

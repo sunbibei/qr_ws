@@ -2,17 +2,17 @@
 #include <string>
 #include <iostream>
 
-const unsigned int Joint_Num = 12;
+const  int Joint_Num = 12;
 const float PI = 3.14159265;
-const unsigned int Height = 50;
+const int Height = 45;
 
-const unsigned int Foot_Steps = 10;
-const unsigned int Swing_Height = 4;
+const  int Foot_Steps = 10;
+const  int Swing_Height = 4;
 
-const unsigned int Init_Num = 100;
-const unsigned int Swing_Num  = 100;
-const unsigned int Stance_Num = 100;
-const unsigned int Update_Rate = 1000;
+const  int Init_Num = 50;
+const  int Swing_Num  = 20;
+const  int Stance_Num = 20;
+const  int Update_Rate = 1000;
 
 const double L0 = 4;
 const double L1 = 27.3;

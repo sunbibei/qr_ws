@@ -46,6 +46,8 @@ bool Propagate::write(const std::vector<std::string>& names) {
   for (auto& channel : composite_) {
     connected_ = (connected_ || channel.second->write(names));
   }
+
+  
   return connected_;
 }
 

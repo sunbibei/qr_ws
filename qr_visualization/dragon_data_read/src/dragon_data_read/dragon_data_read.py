@@ -100,25 +100,26 @@ class DataRead(Plugin):
         #self.lock.acquire()
         for i in range(len(msg.data)):
             self.dragon_joint_pointer[self.dragon_joint_index[i]]['motor']['position'] = msg.data[i]
-            lcdNumber_name = 'lcdNumber_' + self.dragon_joint_index[i] + 'm' + '_pos'
-            getattr(self._widget,lcdNumber_name).display(self.dragon_joint_pointer[self.dragon_joint_index[i]]['motor']['position'])
+            motor_lcdNumber_name = 'lcdNumber_' + self.dragon_joint_index[i] + 'm' + '_pos'
+            getattr(self._widget,motor_lcdNumber_name).display(self.dragon_joint_pointer[self.dragon_joint_index[i]]['motor']['position'])
         #self.lock.release()
             
     def _receive_encorder_data(self, msg):
         #self.lock.acquire()
         for i in range(len(msg.position)):
             self.dragon_joint_pointer[self.dragon_joint_index[i]]['encorder']['position'] = msg.position[i]
-            lcdNumber_name = 'lcdNumber_' + self.dragon_joint_index[i] + 'e' + '_pos'
-            getattr(self._widget,lcdNumber_name).display(self.dragon_joint_pointer[self.dragon_joint_index[i]]['encorder']['position'])
+            encorder_lcdNumber_name = 'lcdNumber_' + self.dragon_joint_index[i] + 'e' + '_pos'
+            getattr(self._widget,encorder_lcdNumber_name).display(self.dragon_joint_pointer[self.dragon_joint_index[i]]['encorder']['position'])
 
     def _receive_cur_data(self, msg):
         for i in range(len(self.cur_index)):
-            lcdNumber_name = 'lcdNumber_' + self.cur_index[i]
-            getattr(self._widget, lcdNumber_name).display(msg.data[i])
+            cur_lcdNumber_name = 'lcdNumber_' + self.cur_index[i]
+            getattr(self._widget, cur_lcdNumber_name).display(msg.data[i])
     
     def shutdown_plugin(self):
         #self._timer.stop()
         self._motor_subscriber.unregister()
         self._encorder_subscriber.unregister()
+        self.ele_cur_subscriber.unregister()
         
 

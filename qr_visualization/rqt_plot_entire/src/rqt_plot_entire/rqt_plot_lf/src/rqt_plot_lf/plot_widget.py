@@ -17,6 +17,7 @@ from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common import topic_helpers
 
 MOTOR_TOPIC_NAME = "/dragon/joint_state"
+#MOTOR_TOPIC_NAME = "/JointCommand"
 ENCORDER_TOPIC_NAME = "/joint_states"
 JOINT_DATA = ['hip_cmd' , 'knee_cmd' , 'yaw_cmd' , 'hip_state' , 'knee_state'  , 'yaw_state']
 
@@ -40,6 +41,7 @@ class PlotWidget(QWidget):
         self._encorder_topic_name = ENCORDER_TOPIC_NAME
         try:
             self._motor_subscriber = rospy.Subscriber(self._motor_topic_name , Float64MultiArray , self._motor_cb)
+            #self._motor_subscriber = rospy.Subscriber(self._motor_topic_name , JointState , self._motor_cb)
         except ValueError,e:
             rospy.logerr('rqt_plot: error connect topic (%s)'%e)
         try:
@@ -94,6 +96,7 @@ class PlotWidget(QWidget):
                 temp_joint_cmd = ['hip_cmd', 'knee_cmd', 'yaw_cmd']
                 i = 3
                 for index in temp_joint_cmd:
+                    #self.curve[index]['buff_y'].append(msg.position[i])
                     self.curve[index]['buff_y'].append(msg.data[i])
                     i += 1
                     self.curve[index]['buff_x'].append(rospy.get_time() - self.start_time)

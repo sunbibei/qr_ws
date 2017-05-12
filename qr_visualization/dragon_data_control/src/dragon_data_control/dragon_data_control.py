@@ -154,27 +154,30 @@ class DragonDataControl(Plugin):
         self._widget.lineEdit_yaw.setText(str(0.0))
         
     def pushButton_go(self):
-        current_leg = self._widget.comboBox_leg.currentText()
+	current_leg = self._widget.comboBox_leg.currentText()
 	current_type = self._widget.comboBox_type.currentText()
 	joint_data = Float64MultiArray()
-	joint_data.data = [0, 0, 0, 0, 0 , 0, 0, 0,0,0,0,0]	
-	if "Position" == current_type:
-	    if "L-F" == current_leg:
-		joint_data.data[0] = self.dragon_pointer['hip']['value']
-		joint_data.data[1] = self.dragon_pointer['knee']['value']
-		joint_data.data[2] = self.dragon_pointer['yaw']['value']
-	    elif "L-B" == current_leg:
-		joint_data.data[3] = self.dragon_pointer['hip']['value']
-		joint_data.data[4] = self.dragon_pointer['knee']['value']
-		joint_data.data[5] = self.dragon_pointer['yaw']['value']
-	    elif "R-F" == current_leg:
-		joint_data.data[6] = self.dragon_pointer['hip']['value']
-		joint_data.data[7] = self.dragon_pointer['knee']['value']
-		joint_data.data[8] = self.dragon_pointer['yaw']['value']
-	    elif "R-B" == current_leg:
-		joint_data.data[9] = self.dragon_pointer['hip']['value']
-		joint_data.data[10] = self.dragon_pointer['knee']['value']
-		joint_data.data[11] = self.dragon_pointer['yaw']['value']
+	joint_data.data = [1000,1000, 1000, 1000, 1000 , 1000, 1000, 1000,1000,1000,1000,1000]
+	#joint_data.data = [0,0,0,0,0,0,0,0,0,0,0,0]
+	#for i in range(12):
+	#	joint_data.data[i] = self.sub_msg_pos[i]
+    	if "Position" == current_type:
+		if "L-F" == current_leg:
+			joint_data.data[0] = self.dragon_pointer['hip']['value']
+			joint_data.data[1] = self.dragon_pointer['knee']['value']
+			joint_data.data[2] = self.dragon_pointer['yaw']['value']
+		elif "L-B" == current_leg:
+			joint_data.data[3] = self.dragon_pointer['hip']['value']
+			joint_data.data[4] = self.dragon_pointer['knee']['value']
+			joint_data.data[5] = self.dragon_pointer['yaw']['value']
+		elif "R-F" == current_leg:
+			joint_data.data[6] = self.dragon_pointer['hip']['value']
+			joint_data.data[7] = self.dragon_pointer['knee']['value']
+			joint_data.data[8] = self.dragon_pointer['yaw']['value']
+		elif "R-B" == current_leg:
+			joint_data.data[9] = self.dragon_pointer['hip']['value']
+			joint_data.data[10] = self.dragon_pointer['knee']['value']
+			joint_data.data[11] = self.dragon_pointer['yaw']['value']
 		
 	self._publisher_command.publish(joint_data)
 
@@ -227,19 +230,19 @@ class DragonDataControl(Plugin):
             msg.data = [0,0,0, 0, 0, 0, 0, 0,0,0,0,0]
             for i in range(len(self.hip_data)):
                 if self._if_load:
-                    msg.data[6] = self.hip_data[i]
-                    msg.data[7] = self.knee_data[i]
+                    msg.data[0] = self.hip_data[i]
+                    #msg.data[1] = self.knee_data[i]
                     self._publisher_command.publish(msg)
-                    time.sleep(0.02)
+                    time.sleep(0.03)
 
     def pushButton_load(self):
         try:
             with open(self.doc_path,'r') as f:
                 data = f.readlines()
-                hip_data_str = data[0].split(',')
+                hip_data_str = data[0].split()
                 self.hip_data = [float(i) for i in hip_data_str]
-                knee_data_str = data[1].split(',')
-                self.knee_data = [float(i) for i in knee_data_str]
+                #knee_data_str = data[1].split(',')
+                #self.knee_data = [float(i) for i in knee_data_str]
                 self._if_load = True
         except Exception,e:
 	    print Exception,":",e

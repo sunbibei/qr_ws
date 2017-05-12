@@ -79,6 +79,12 @@ private:
   bool alive_;
 
   ros::NodeHandle nh_;
+    // For debug
+#ifdef DEBUG_TOPIC
+  ros::Publisher          cmd_pub_;
+  sensor_msgs::JointState cmd_msg_;
+#endif
+
   // FollowJointTrjectoryAction服务器相关变量。 实现FollowJointTrajectory功能
   actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction> as_;
   actionlib::ServerGoalHandle<control_msgs::FollowJointTrajectoryAction> goal_handle_;
