@@ -65,7 +65,7 @@ class DragonDataControl(Plugin):
         
         #rospub
         self.topic_name = TOPIC_NAME
-        self.sub_name = SUB_NAME
+        self.sub_name   = SUB_NAME
 	try:
 	    self._publisher_command = rospy.Publisher(self.topic_name, Float64MultiArray , queue_size=10)
 	except ROSException, e:
