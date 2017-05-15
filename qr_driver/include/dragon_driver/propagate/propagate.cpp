@@ -53,7 +53,7 @@ bool Propagate::write(const std::vector<std::string>& names) {
   }
   LOG_INFO << ss.str();*/
   for (auto itr : cmd_composite_) {
-    LOG_WARNING << itr.first << ": " << itr.second;
+    LOG_INFO << itr.first << ": " << itr.second;
   }
 
   connected_ = false;
