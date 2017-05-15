@@ -62,12 +62,12 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
 **************************************************************************/
 void PositionJointGroupController::starting(const ros::Time& time)
 {
-        // std::cout<<"get_position"<<std::endl;
-        // for(int i=0;i<12;i++)
-        // {
-        //     std::cout<<joints_[i].getPosition()<<" ";
-        // }
-        // std::cout<<std::endl;
+        std::cout<<"get_position"<<std::endl;
+        for(int i=0;i<12;i++)
+        {
+            std::cout<<joints_[i].getPosition()<<" ";
+        }
+        std::cout<<std::endl;
 
         Angle_ptr->lb.hip  = joints_[0].getPosition();
         Angle_ptr->lb.knee = joints_[1].getPosition();

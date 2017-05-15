@@ -102,14 +102,14 @@ private:
   // 用于保存每一次需要写入命令的关节名称列表
   // 设定命令和写命令使用互斥锁
   std::mutex cmd_lock_;
-  bool new_command_;
+  bool       new_command_;
   std::vector<std::string> new_jnt_cmd_names_;
 
   // 每次电机指令执行的延时(ms)
   double servoj_time_;
-  bool executing_traj_;
-  bool keepalive_;
-  bool connected_;
+  bool   executing_traj_;
+  bool   keepalive_;
+  bool   connected_;
   std::thread* propagate_thread_;
 };
 
