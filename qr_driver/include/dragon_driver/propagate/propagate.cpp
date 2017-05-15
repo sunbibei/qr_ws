@@ -6,6 +6,8 @@
  */
 
 #include "propagate.h"
+#include "../hardware/motor.h"
+
 
 namespace middleware {
 
@@ -42,12 +44,18 @@ bool Propagate::init() {
  * 返回false, 其他情况均返回true
  */
 bool Propagate::write(const std::vector<std::string>& names) {
-  std::stringstream ss;
+  /*std::stringstream ss;
   ss << "WRITE:";
   for (const auto& name : names) {
-    ss << " " << name;
+    auto itr = cmd_composite_.find(name);
+    Motor::CmdTypeSp cmd = boost::dynamic_pointer_cast<Motor::CmdType>(itr->second);
+    ss << " " << name << ": " << cmd->command_;
   }
-  LOG_INFO << ss.str();
+  LOG_INFO << ss.str();*/
+  for (auto itr : cmd_composite_) {
+    LOG_WARNING << itr.first << ": " << itr.second;
+  }
+
   connected_ = false;
   for (auto& channel : composite_) {
     connected_ = (connected_ || channel.second->write(names));

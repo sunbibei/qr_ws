@@ -114,7 +114,7 @@ bool RosWrapper::start() {
   cmd_pub_ = nh_.advertise<sensor_msgs::JointState>("/JointCommand", 10);
 #endif
 
-  LOG_ERROR << ros::package::getPath("");
+  // LOG_ERROR << ros::package::getPath("");
   return true;
 }
 
