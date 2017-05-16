@@ -205,7 +205,7 @@ class DragonDataControl(Plugin):
             elif 'R-F' == current_leg:
                 self.dragon_pointer['hip']['value'] = self.sub_msg_pos[9]
                 self.dragon_pointer['knee']['value'] = self.sub_msg_pos[10]
-        		self.dragon_pointer['yaw']['value'] = self.sub_msg_pos[11]
+                self.dragon_pointer['yaw']['value'] = self.sub_msg_pos[11]
         elif 'Velocity' == current_type:
     	    if "L-B" == current_leg:
         		self.dragon_pointer['hip']['value'] = self.sub_msg_vel[0]

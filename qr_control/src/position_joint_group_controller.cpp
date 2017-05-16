@@ -42,7 +42,7 @@ bool PositionJointGroupController::init(hardware_interface::PositionJointInterfa
                 joints_.push_back(robot->getHandle(*iter));
         }
 
-        joint_state_publisher_.reset( new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(n, "/dragon/joint_state", 1));
+        joint_state_publisher_.reset( new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(n, "/dragon/joint_commands", 1));
 
         for(int i=0; i<Joint_Num; i++)
         {
