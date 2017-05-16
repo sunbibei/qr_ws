@@ -186,16 +186,16 @@ void PositionJointGroupController::assign_next_foot()
         switch(Leg_Order)//choose swing foot
         {
         case 1:
-                Desired_Foot_Pos = struct_assign(Body_L - Foot_Steps, Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(Body_L - Foot_Steps, Body_W, -Height+2);
                 break;
         case 2:
-                Desired_Foot_Pos = struct_assign(Body_L - Foot_Steps, -Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(Body_L - Foot_Steps, -Body_W, -Height+2);
                 break;
         case 3:
-                Desired_Foot_Pos = struct_assign(-Body_L - Foot_Steps, Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(-Body_L - Foot_Steps, Body_W, -Height-12);
                 break;
         case 4:
-                Desired_Foot_Pos = struct_assign(-Body_L - Foot_Steps, -Body_W, -Height);
+                Desired_Foot_Pos = struct_assign(-Body_L - Foot_Steps, -Body_W, -Height-3);
                 break;
         default: break;
         }
@@ -609,19 +609,19 @@ std::vector<double> PositionJointGroupController::vec_assign(Angle_Ptr Angle)
         vec.clear();
         vec.push_back(Angle->lb.hip);
         vec.push_back(Angle->lb.knee);
-        vec.push_back(Angle->lb.pitch);
+        vec.push_back(-Angle->lb.pitch);
 
         vec.push_back(Angle->lf.hip);
         vec.push_back(Angle->lf.knee);
-        vec.push_back(Angle->lf.pitch);
+        vec.push_back(-Angle->lf.pitch);
 
         vec.push_back(Angle->rb.hip);
         vec.push_back(Angle->rb.knee);
-        vec.push_back(Angle->rb.pitch);
+        vec.push_back(-Angle->rb.pitch);
 
         vec.push_back(Angle->rf.hip);
         vec.push_back(Angle->rf.knee);
-        vec.push_back(Angle->rf.pitch);
+        vec.push_back(-Angle->rf.pitch);
         return vec;
 }
 
