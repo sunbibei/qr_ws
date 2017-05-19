@@ -13,17 +13,9 @@ PropagateParser::PropagateParser() :
   position_(0), last_position_(0.0),
   velocity_(0), last_velocity_(0.0),
   ele_current_(0), last_ele_current_(0.0),
-  leg_name_("left_front"), joint_name_("_knee"),
-  dataType_("position") {
-  /*position_ = 0;
-  last_position_ = 0.0;
-  velocity_ = 0;
-  last_velocity_ = 0.0;
-  ele_current_ = 0;
-  last_ele_current_ = 0.0;
-  leg_name_ = "left_front";
-  joint_name_ = "_knee";
-  dataType_ = "position";*/
+  leg_name_(LEFT_FRONT), joint_name_(HIP),
+  dataType_(POSITION), offset_(3) {
+
 }
 
 PropagateParser::~PropagateParser() {
@@ -31,110 +23,15 @@ PropagateParser::~PropagateParser() {
 }
 
 bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_composite){
+  /*
   name = "";
   leg_name_ = "";
-  joint_name_ = "";
-  //DATA[0]确定四条腿
-   switch(msg.ID) {
-   case 0x02:
-   {
-     leg_name_ = LEFT_FRONT;
-     break;
-   }
-   case 0x03:
-   {
-     leg_name_ = LEFT_BACK;
-     break ;
-   }
-   case 0x04:
-   {
-     leg_name_ = RIGHT_FRONT;
-     break;
-   }
-   case 0x05:
-   {
-     leg_name_ = RIGHT_BACK;
-     break;
-   }
-   default: {
-    // LOG_WARNING << "ERROR in msg.ID";
-    break;
-   }
-   }
+  joint_name_ = ""; maybe don't need it */
+  name_ = getJointName(msg);
+  dataType_ = getDataType(msg);
 
-   switch(msg.DATA[0]){
-    case 0x41:
-    case 0x61:
-    {
-      joint_name_ = "_knee";
-      break;
-    }
-    case 0x42:
-    case 0x62:
-    {
-      joint_name_ = "_hip";
-      break;
-    }
-    case 0x43:
-    case 0x63:
-    {
-      joint_name_ = "_yaw";
-      break;
-    }
-    default: {
-      // LOG_WARNING << "ERROR in msg.DATA[0]";
-      break;
-    }
-   }
-
-   //msg.DATA[0] deside ele_cur
-   switch(msg.DATA[0]) {
-    case 0x81:
-    {
-      leg_name_ = LEFT_BACK;
-      joint_name_ = "_hip";
-      break;
-    }
-    case 0x82:
-    {
-      leg_name_ = LEFT_BACK;
-      joint_name_ = "_knee";
-      break;
-    }
-    case 0x83:
-    {
-      leg_name_ = LEFT_BACK;
-      joint_name_ = "_yaw";
-      break;
-    }
-    case 0x84:
-    {
-      leg_name_ = LEFT_FRONT;
-      joint_name_ = "_hip";
-      break;
-    }
-    default: {
-      // LOG_WARNING << "ERROR in msg.DATA[0]";
-      break;
-    }
-   }
-   //0x42~0x45表示位置信息， 0x64~0x67表示速度信息
-   if(msg.DATA[0] <= 0x43 && msg.DATA[0] >= 0x41 ){
-     dataType_ = "position";
-   } else if(msg.DATA[0] >=0x61 && msg.DATA[0] <= 0x63){
-     dataType_ = "velocity";
-   } else if(msg.DATA[0] >= 0x81 && msg.DATA[0] <=0x84){
-      dataType_ = "ele_current";
-      //printf("name is %s",name);
-      /*
-      printf("write_msg is: 0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
-       msg.DATA[0],msg.DATA[1],msg.DATA[2],msg.DATA[3],msg.DATA[4],
-       msg.DATA[5],msg.DATA[6]);*/
-   }
-
-    name = leg_name_ + joint_name_;
     //LOG_WARNING << "name is " << name; 
-    auto itr = state_composite.find(name);
+    auto itr = state_composite.find(name_);
     if (state_composite.end() != itr) {
       Encoder::StateTypeSp act_state
         = boost::dynamic_pointer_cast<Encoder::StateType>(itr->second);
@@ -144,19 +41,19 @@ bool PropagateParser::parsePcan(TPCANMsg& msg ,  Component<HwState>& state_compo
       last_velocity_ = act_state->vel_;
       last_ele_current_ = act_state->ele_current_;      
 
-      if ("position" == dataType_){
-        memcpy(&position_ , msg.DATA+3, 2 * sizeof(position_));
+      if (POSITION == dataType_){
+        memcpy(&position_ , msg.DATA+offset_, 2 * sizeof(position_));
         act_state->pos_ = (double)(position_);
         act_state->vel_ = last_velocity_;
         act_state->ele_current_ = last_ele_current_;
 
-      } else if ("velocity" == dataType_){
-        memcpy(&velocity_ , msg.DATA+3, 2 * sizeof(velocity_));
+      } else if (VELOCITY == dataType_){
+        memcpy(&velocity_ , msg.DATA+offset_, 2 * sizeof(velocity_));
         act_state->pos_ = last_position_;
         act_state->vel_ = (double)(velocity_);
         act_state->ele_current_ = last_ele_current_;
-      } else if ("ele_current" == dataType_){
-        memcpy(&ele_current_, msg.DATA+3, 2*sizeof(ele_current_));
+      } else if (ELE_CURRENT == dataType_){
+        memcpy(&ele_current_, msg.DATA+offset_, 2*sizeof(ele_current_));
         act_state->ele_current_ = (double)(ele_current_);
         act_state->pos_ = last_position_;
         act_state->vel_ = last_velocity_;
@@ -196,35 +93,136 @@ TPCANMsg PropagateParser::packagePCAN(const std::string& name, Component<HwComma
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x11; // DATA[0] 用于确定膝关节和髋关节
         position_ = 10000 * cmd->command_;
-        memcpy(msg_.DATA + 3 , &position_ , 2 * sizeof(msg_.DATA));
+        memcpy(msg_.DATA + offset_ , &position_ , 2 * sizeof(msg_.DATA));
       } else if (Motor::CmdType::MODE_VEL_ == cmd->mode_){
         msg_.DATA[0] = 0x21; // DATA[0] 用于确定膝关节和髋关节
         velocity_ = 10000 * cmd->command_;
-        memcpy(msg_.DATA + 3 , &velocity_ , 2 * sizeof(msg_.DATA));
+        memcpy(msg_.DATA + offset_ , &velocity_ , 2 * sizeof(msg_.DATA));
       }
     } else if (std::string::npos != name.find(HIP)) {
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x12; // DATA[0] 用于确定膝关节和髋关节
         position_ = 10000 * cmd->command_;
-        memcpy(msg_.DATA + 3 , &position_ , 2 * sizeof(msg_.DATA));
+        memcpy(msg_.DATA + offset_ , &position_ , 2 * sizeof(msg_.DATA));
       } else if (Motor::CmdType::MODE_VEL_ == cmd->mode_) {
         msg_.DATA[0] = 0x22; // DATA[0] 用于确定膝关节和髋关节
         velocity_ = 10000 * cmd->command_;
-        memcpy(msg_.DATA + 3 , &velocity_ , 2 * sizeof(msg_.DATA));
+        memcpy(msg_.DATA + offset_ , &velocity_ , 2 * sizeof(msg_.DATA));
       }
     } else if (std::string::npos != name.find(YAW)) {
       if (Motor::CmdType::MODE_POS_ == cmd->mode_){
         msg_.DATA[0] = 0x13; // DATA[0] 用于确定膝关节和髋关节,yaw
         position_ = 10000 * cmd->command_;
-        memcpy(msg_.DATA + 3 , &position_ , 2 * sizeof(msg_.DATA));
+        memcpy(msg_.DATA + offset_ , &position_ , 2 * sizeof(msg_.DATA));
       } else if (Motor::CmdType::MODE_VEL_ == cmd->mode_) {
         msg_.DATA[0] = 0x23; // DATA[0] 用于确定膝关节和髋关节
         velocity_ = 10000 * cmd->command_;
-        memcpy(msg_.DATA + 3 , &velocity_ , 2 * sizeof(msg_.DATA));
+        memcpy(msg_.DATA + offset_ , &velocity_ , 2 * sizeof(msg_.DATA));
       }
     }
   }
   return msg_;
+}
+
+std::string PropagateParser::getJointName(TPCANMsg& msg) {
+   switch(msg.ID) {
+   case 0x02:
+   {
+     leg_name_ = LEFT_FRONT;
+     break;
+   }
+   case 0x03:
+   {
+     leg_name_ = LEFT_BACK;
+     break ;
+   }
+   case 0x04:
+   {
+     leg_name_ = RIGHT_FRONT;
+     break;
+   }
+   case 0x05:
+   {
+     leg_name_ = RIGHT_BACK;
+     break;
+   }
+   default: {
+    // LOG_WARNING << "ERROR in msg.ID";
+    break;
+   }
+   }
+
+   switch(msg.DATA[0]){
+    case 0x41:
+    case 0x61:
+    {
+      joint_name_ = KNEE;
+      break;
+    }
+    case 0x42:
+    case 0x62:
+    {
+      joint_name_ = HIP;
+      break;
+    }
+    case 0x43:
+    case 0x63:
+    {
+      joint_name_ = YAW;
+      break;
+    }
+    default: {
+      // LOG_WARNING << "ERROR in msg.DATA[0]";
+      break;
+    }
+   }
+
+   //msg.DATA[0] deside ele_cur
+   switch(msg.DATA[0]) {
+    case 0x81:
+    {
+      leg_name_ = LEFT_BACK;
+      joint_name_ = HIP;
+      break;
+    }
+    case 0x82:
+    {
+      leg_name_ = LEFT_BACK;
+      joint_name_ = KNEE;
+      break;
+    }
+    case 0x83:
+    {
+      leg_name_ = LEFT_BACK;
+      joint_name_ = YAW;
+      break;
+    }
+    case 0x84:
+    {
+      leg_name_ = LEFT_FRONT;
+      joint_name_ = HIP;
+      break;
+    }
+    default: {
+      // LOG_WARNING << "ERROR in msg.DATA[0]";
+      break;
+    }
+   }
+    std::string name = leg_name_ + "_" + joint_name_;
+    return name;
+}
+
+std::string PropagateParser::getDataType(TPCANMsg& msg) {
+     //0x42~0x45表示位置信息， 0x64~0x67表示速度信息
+    std::string dataType;
+   if(msg.DATA[0] <= 0x43 && msg.DATA[0] >= 0x41 ){
+     dataType = POSITION;
+   } else if(msg.DATA[0] >=0x61 && msg.DATA[0] <= 0x63){
+     dataType = VELOCITY;
+   } else if(msg.DATA[0] >= 0x81 && msg.DATA[0] <=0x84){
+      dataType = ELE_CURRENT;
+   }
+    return dataType;
 }
 
 } /* namespace middleware */

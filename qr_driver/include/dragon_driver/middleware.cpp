@@ -56,8 +56,6 @@ bool Middleware::init(const std::string& xml) {
 
   LOG_INFO << "The initialization has successful";
   connected_ = propagate_->init();
-  if (!connected_)
-    LOG_ERROR << "The connection has failed!";
   return connected_;
 }
 

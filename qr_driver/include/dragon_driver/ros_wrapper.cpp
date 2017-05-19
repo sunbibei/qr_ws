@@ -114,7 +114,7 @@ bool RosWrapper::start() {
   cmd_pub_ = nh_.advertise<sensor_msgs::JointState>("/JointCommand", 10);
 #endif
 
-  // LOG_ERROR << ros::package::getPath("");
+  LOG_ERROR << ros::package::getPath("");
   return true;
 }
 
@@ -376,6 +376,7 @@ void RosWrapper::cbForDebug(const std_msgs::Float64MultiArrayConstPtr& msg) {
   std::vector<std::string> cmd_name;
   int index = 0;
   for (auto& jnt : robot_->jnt_names_) {
+
     if (msg->data[index] == 1000 ) {
       ++index;
       continue;
