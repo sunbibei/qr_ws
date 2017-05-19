@@ -141,6 +141,24 @@
 			<dynamics damping="${Damping}" friction="${Friction}"/>
 			<limit lower="${Limit_Low}" upper="${ Limit_Up}" effort="${Effort_Limit}" velocity="${Velocity_Limit}"/>
 		</joint>
+		<link name="${Name}_foot">
+			<visual>
+				<origin xyz="0 0 ${-SHE_L/2}" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="${SHE_R}" length="0.0001"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 ${-SHE_L/2}" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="${SHE_R}" length="0.0001"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${Name}_foot_fixed" type="fixed">
+			<parent link="${Name}_shine"/>
+			<child link="${Name}_foot"/>
+		</joint>
 	</xacro:macro>
 	<!--***************************************************************-->
 	<!--********  LINKS and JOINTS defined by MACRO TEMPLATES  ********-->
@@ -161,10 +179,10 @@
 	<xacro:SHINE Name="left_back"   Mass="1" Limit_Up = "2" Limit_Low="-2" />
 	<xacro:SHINE Name="right_back"  Mass="1" Limit_Up = "2" Limit_Low="-2" />
 
-	<link name="world"/>
+	<!--link name="world"/>
 	<joint name="base_fixed" type="fixed">
 		<parent link="world"/>
 		<child link="body"/>
-	</joint>
+	</joint-->
 
 </robot>
