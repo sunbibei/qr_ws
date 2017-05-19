@@ -33,10 +33,10 @@ class DragonDataControl(Plugin):
         # Create QWidget
         self._widget = QWidget()
         # Get path to UI file which should be in the "resource" folder of this package
-	rp = rospkg.RosPack()
+        rp = rospkg.RosPack()
         ui_file = os.path.join(rp.get_path('dragon_data_control'), 'resource', 'data_control.ui')
-	self.doc_path = rp.get_path('dragon_data_control') + '/src/dragon_data_control/data.txt'
-	# Extend the widget with all attributes and children from UI file
+        self.doc_path = rp.get_path('dragon_data_control') + '/src/dragon_data_control/data.txt'
+        # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
         self._widget.setObjectName('DragonDataControl')
@@ -59,6 +59,7 @@ class DragonDataControl(Plugin):
         self.knee_data = []
         self.sub_msg_pos = []
         self.sub_msg_vel = []
+
 	
 	#threading
 	self.lock = threading.Lock()
@@ -82,7 +83,7 @@ class DragonDataControl(Plugin):
             self._widget.comboBox_leg.addItem(key)
         for key in self.data_tpye:
             self._widget.comboBox_type.addItem(key)
-	    
+
 	#get slider limit
 	self.urdf_path = rp.get_path('qr_description') + '/urdf/dragon.urdf'
 	self.urdf_pointer = self.getLimit(self.urdf_path)
@@ -149,6 +150,7 @@ class DragonDataControl(Plugin):
 	    lineEdit.setText(str(0.0))
        
     def pushButton_go(self):
+
 	current_leg = self._widget.comboBox_leg.currentText()
 	current_type = self._widget.comboBox_type.currentText()
 	joint_data = Float64MultiArray()
@@ -167,6 +169,7 @@ class DragonDataControl(Plugin):
     def pushButton_get(self):
         current_leg = self._widget.comboBox_leg.currentText()
         current_type = self._widget.comboBox_type.currentText()
+
 	index = self.leg_name.index(current_leg) * 3
 	for key in self.joint_name:
 	    if "Position" == current_type:
@@ -213,32 +216,32 @@ class DragonDataControl(Plugin):
         self._if_load = False
 	
     def getLimit(self, urdf_path):		
-	root = ET.parse(urdf_path)
-	joints = root.findall('joint')
-	joint_pointer = {}
-	for joint_list in joints:
-	    joint_children = joint_list.getchildren()
-	    for node in joint_children:
-		if node.tag == "limit":
-		    joint_pointer[joint_list.attrib['name']] = {"name" : joint_list.attrib['name'], 
-			                                        "upper" : float(node.attrib['upper']), "lower": float(node.attrib['lower']),
-			                                        "effort": float(node.attrib['effort']), "velocity": float(node.attrib['velocity'])}
-	return joint_pointer
+    	root = ET.parse(urdf_path)
+    	joints = root.findall('joint')
+    	joint_pointer = {}
+    	for joint_list in joints:
+    	    joint_children = joint_list.getchildren()
+    	    for node in joint_children:
+    		if node.tag == "limit":
+    		    joint_pointer[joint_list.attrib['name']] = {"name" : joint_list.attrib['name'], 
+    			                                        "upper" : float(node.attrib['upper']), "lower": float(node.attrib['lower']),
+    			                                        "effort": float(node.attrib['effort']), "velocity": float(node.attrib['velocity'])}
+    	return joint_pointer
     
     def getCurrentName(self):
-	current_leg = self._widget.comboBox_leg.currentText()
-	current_type = self._widget.comboBox_type.currentText()
-	names = []
-	if "L-F" == current_leg:
-	    name = "left_front_"
-	elif "L-B" == current_leg:
-	    name = "left_back_"
-	elif "R-F" == current_leg:
-	    name = "right_front_"
-	elif "R-B" == current_leg:
-	    name = "right_back_"
-	
-	for joint_name in self.joint_name:
-	    names.append(name + joint_name)
-	return names
+    	current_leg = self._widget.comboBox_leg.currentText()
+    	current_type = self._widget.comboBox_type.currentText()
+    	names = []
+    	if "L-F" == current_leg:
+    	    name = "left_front_"
+    	elif "L-B" == current_leg:
+    	    name = "left_back_"
+    	elif "R-F" == current_leg:
+    	    name = "right_front_"
+    	elif "R-B" == current_leg:
+    	    name = "right_back_"
+    	
+    	for joint_name in self.joint_name:
+    	    names.append(name + joint_name)
+    	return names
 

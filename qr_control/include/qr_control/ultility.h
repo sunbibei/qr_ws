@@ -4,23 +4,23 @@
 
 const  int Joint_Num = 12;
 const float PI = 3.14159265;
-const int Height = 45;
+const int Height = 35;
 
 const  int Foot_Steps = 10;
 const  int Swing_Height = 4;
 
-const  int Init_Num = 50;
-const  int Swing_Num  = 50;
-const  int Stance_Num = 50;
+const  int Init_Num = 200;
+const  int Swing_Num  = 100;
+const  int Stance_Num = 100;
 const  int Update_Rate = 1000;
 
 const double L0 = 4;
 const double L1 = 27.3;
 const double L2 = 22.5;
 
-const double Body_L = 20;
-const double Body_W = 13.5;
-
+const double Body_L = 27.65;
+const double Body_W = 16.8;
+const double Body_D = 10;
 
 inline int Sgn(int a)
 {

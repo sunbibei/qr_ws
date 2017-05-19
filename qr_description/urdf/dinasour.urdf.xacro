@@ -11,8 +11,8 @@
 	<xacro:property name="Effort_Limit"  value="50" />
 	<xacro:property name="Velocity_Limit" value="1" />
 
-	<xacro:property name="BODY_X"        value="0.8" />
-	<xacro:property name="BODY_Y"        value="0.5" />
+	<xacro:property name="BODY_X"        value="0.553" />
+	<xacro:property name="BODY_Y"        value="0.336" />
 	<xacro:property name="BODY_Z"        value="0.1" />
 	<xacro:property name="SHOD_R"        value="0.04" />
 	<xacro:property name="SHOD_L"        value="0.04" />
