@@ -45,6 +45,7 @@ public:
 
 private:
                 int Loop_Count;
+                int T_Count = 0;
                 unsigned int Time_Order = 0;
                 unsigned int Leg_Order = 1;
                 double Init_Pos[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
@@ -69,13 +70,14 @@ private:
                 _Position get_eclipse_pos(_Position Start_point, _Position End_point,int Loop);
                 void cog_pos_assign(_Position Adj);
                 void swing_control();
+                void readjust();
                 void assign_next_foot();
                 void ISM(unsigned int Loop_count);
                 int Sgn(double a);
                 std::vector<double> vec_assign(Angle_Ptr Angle);
 
                 float get_adj_pos(float Adj, int t, int T);
-
+                _Position get_rect_pos(_Position Start_point, _Position End_point,int Loop);
                 _Position get_stance_velocity(_Position Adj_vec, unsigned int Loop);
                 _Position get_stance_acceration(_Position Adj_vec, unsigned int Loop);
                 _Position get_CoG_adj_vec(_Position Next_Foothold, unsigned int Swing_Order);

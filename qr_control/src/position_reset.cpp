@@ -56,7 +56,8 @@ void PositionResetController::update(const ros::Time&, const ros::Duration&) {
   is_control_ = false;
   for(auto iter = joint_handles_.begin();
       iter != joint_handles_.end(); ++iter) {
-      iter->setCommand(1);
+      iter->setCommand(iter->getPosition());
+      // iter->setCommand(1);
       // if (abs(iter->getPosition()) >= 0.01) {
       //   iter->setCommand(0.0);
       //   is_control_ = true;
@@ -71,6 +72,7 @@ void PositionResetController::update(const ros::Time&, const ros::Duration&) {
 
 #include <pluginlib/class_list_macros.h>
 
-PLUGINLIB_DECLARE_CLASS(qr_control, PositionResetController,
-                        qr_control::PositionResetController,
-                        controller_interface::ControllerBase)
+// PLUGINLIB_DECLARE_CLASS(qr_control, PositionResetController,
+//                        qr_control::PositionResetController,
+//                        controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(qr_control::PositionResetController, controller_interface::ControllerBase)

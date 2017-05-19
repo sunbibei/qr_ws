@@ -56,8 +56,6 @@ bool Middleware::init(const std::string& xml) {
 
   LOG_INFO << "The initialization has successful";
   connected_ = propagate_->init();
-  if (!connected_)
-    LOG_ERROR << "The connection has failed!";
   return connected_;
 }
 
@@ -75,9 +73,10 @@ bool Middleware::init(ros::NodeHandle& nh) {
 }
 
 bool Middleware::start() {
-  // For Debug
-  // propagate_->check();
-  // hw_unit_->check();
+  // For Debug the follow two lines
+  propagate_->check();
+  hw_unit_->check();
+
   propagate_thread_ = new std::thread(&Middleware::runPropagate, this);
   LOG_INFO << "The propagate thread has started to run!";
   return true;

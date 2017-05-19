@@ -6,8 +6,6 @@
  */
 
 #include "propagate.h"
-#include "../hardware/motor.h"
-
 
 namespace middleware {
 
@@ -44,22 +42,12 @@ bool Propagate::init() {
  * 返回false, 其他情况均返回true
  */
 bool Propagate::write(const std::vector<std::string>& names) {
-  /*std::stringstream ss;
-  ss << "WRITE:";
-  for (const auto& name : names) {
-    auto itr = cmd_composite_.find(name);
-    Motor::CmdTypeSp cmd = boost::dynamic_pointer_cast<Motor::CmdType>(itr->second);
-    ss << " " << name << ": " << cmd->command_;
-  }
-  LOG_INFO << ss.str();*/
-  for (auto itr : cmd_composite_) {
-    LOG_INFO << itr.first << ": " << itr.second;
-  }
 
   connected_ = false;
   for (auto& channel : composite_) {
     connected_ = (connected_ || channel.second->write(names));
   }
+
   
   return connected_;
 }
@@ -86,7 +74,6 @@ void Propagate::stop() {
 void Propagate::registerHandle(const std::string& name, HwCmdSp cmd, const std::string& channel) {
   if (channel.empty()) {
     LOG_INFO << "Register the COMMAND handle of " << name << " into cmd_composite successful!";
-    cmd_composite_.add(name, cmd);
   } else {
     if (composite_.end() == composite_.find(channel)) {
       LOG_ERROR << "The channel '" << channel << "' does exist "
@@ -96,6 +83,8 @@ void Propagate::registerHandle(const std::string& name, HwCmdSp cmd, const std::
       composite_[channel]->registerHandle(name, cmd);
     }
   }
+
+  cmd_composite_.add(name, cmd);
 }
 
 /**
@@ -104,7 +93,6 @@ void Propagate::registerHandle(const std::string& name, HwCmdSp cmd, const std::
 void Propagate::registerHandle(const std::string& name, HwStateSp state, const std::string& channel) {
   if (channel.empty()) {
     LOG_INFO << "Register the STATE handle of " << name << " into state_composite successful!";
-    state_composite_.add(name, state);
   } else {
     if (composite_.end() == composite_.find(channel)) {
       LOG_ERROR << "The channel '" << channel << "' does exist "
@@ -114,6 +102,8 @@ void Propagate::registerHandle(const std::string& name, HwStateSp state, const s
       composite_[channel]->registerHandle(name, state);
     }
   }
+
+  state_composite_.add(name, state);
 }
 
 void Propagate::check() {

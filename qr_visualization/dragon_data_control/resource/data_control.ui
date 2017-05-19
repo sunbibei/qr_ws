@@ -173,7 +173,7 @@
     </font>
    </property>
    <property name="text">
-    <string>loadFile</string>
+    <string>LoadFile</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_go">
@@ -262,7 +262,7 @@
     </font>
    </property>
    <property name="text">
-    <string>stop</string>
+    <string>Stop</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_get">
@@ -281,7 +281,7 @@
     </font>
    </property>
    <property name="text">
-    <string>get</string>
+    <string>Get</string>
    </property>
   </widget>
  </widget>
