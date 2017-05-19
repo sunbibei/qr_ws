@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import os
 import rospy
 import rospkg
@@ -15,10 +16,10 @@ import xml.etree.ElementTree as ET
 
 MAX_VALUE = 2
 MIN_VALUE = -2
-TOPIC_NAME = "/debug"
-SUB_NAME = "/joint_states"
+CMD_TOPIC_NAME = "/debug"
+STATE_TOPIC_NAME = "/joint_states"
 
-LEG_NAME = ['L-F' , 'L-B' , 'R-F' , 'R-B']
+LEG_NAME = ['L-B' , 'L-F' , 'R-B' , 'R-F']
 DATA_TPYE = ['Position' , 'Velocity' , 'Effort']
 JOINT_NAME = ['hip', 'knee', 'yaw']
 
@@ -39,71 +40,71 @@ class DragonDataControl(Plugin):
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
         self._widget.setObjectName('DragonDataControl')
-        # Show _widget.windowTitle on left-top of each plugin (when 
-        # it's set in _widget). This is useful when you open multiple 
-        # plugins at once. Also if you open multiple instances of your 
-        # plugin at once, these lines add number to make it easy to 
-        # tell from pane to pane.
-        
+
         #init variable
         self.dragon_pointer = {}
         self.joint_name = JOINT_NAME
         for key in self.joint_name:
             self.dragon_pointer[key] = {'name': key , 'value': 0.0}
         self.factor = (MAX_VALUE-MIN_VALUE)/100.0
-        self.update_lineEdit()
+        
+	
+	#determine the source of the change
         self._if_edit = True
         self._if_slider = True
         self._if_load = False
-
+	
+	#initial the data from the ros topic
         self.hip_data = []
         self.knee_data = []
-        self.lock = threading.Lock()
         self.sub_msg_pos = []
         self.sub_msg_vel = []
 
-        
-        #rospub
-        self.topic_name = TOPIC_NAME
-        self.sub_name   = SUB_NAME
+	
+	#threading
+	self.lock = threading.Lock()
+	
+        #ros pub and sub the topic
+        self.cmd_topic_name = CMD_TOPIC_NAME
+        self.state_topic_name = STATE_TOPIC_NAME
+	try:
+	    self._publisher_command = rospy.Publisher(self.cmd_topic_name, Float64MultiArray , queue_size=10)
+	except ROSException, e:
+	    rospy.logerr('Dragon_data_control: Error creating publisher for topic %s (%s)'%(self._pub_topic, e))
         try:
-            self._publisher_command = rospy.Publisher(self.topic_name, Float64MultiArray , queue_size=10)
+            self.sub_command = rospy.Subscriber(self.state_topic_name, JointState, self.sub_cb)
         except ROSException, e:
-            rospy.logerr('Dragon_data_control: Error creating publisher for topic %s (%s)'%(self._pub_topic, e))
-        
-        try:
-            self.sub_command = rospy.Subscriber(self.sub_name, JointState, self.sub_cb)
-        except ValueError, e:
             rospy.logerr('Dragon_data_control: Error connecting topic (%s)'%e)
                     
-        #widget
+        #widget for comboBox
         self.leg_name = LEG_NAME
         self.data_tpye = DATA_TPYE
         for key in self.leg_name:
             self._widget.comboBox_leg.addItem(key)
         for key in self.data_tpye:
             self._widget.comboBox_type.addItem(key)
-	    
-    	#get slider limit
-    	self.urdf_path = rp.get_path('qr_description') + '/urdf/dragon.urdf'
-    	self.urdf_pointer = self.getLimit(self.urdf_path)
-    	#print self.urdf_pointer
-    	self.current_name = self.getCurrentName()
-    	self.limits = {}
-    	for i in range(len(self.current_name)):
-    	    if "yaw" not in self.current_name[i]:
-    		lower = self.urdf_pointer[self.current_name[i]]['lower']
-    		upper = self.urdf_pointer[self.current_name[i]]['upper']
-    		limit_factor = (upper - lower) / 100.0
-    		self.limits[self.joint_name[i]] = {"limit" : limit_factor}
-    	print self.limits
-            
-        self._widget.horizontalSlider_hip.valueChanged.connect(self.slider_changed)
-        self._widget.horizontalSlider_knee.valueChanged.connect(self.slider_changed)
-        self._widget.horizontalSlider_yaw.valueChanged.connect(self.slider_changed)
-        self._widget.lineEdit_hip.textChanged.connect(self.lineEdit_changed)
-        self._widget.lineEdit_knee.textChanged.connect(self.lineEdit_changed)
-        self._widget.lineEdit_yaw.textChanged.connect(self.lineEdit_changed)
+
+	#get slider limit
+	self.urdf_path = rp.get_path('qr_description') + '/urdf/dragon.urdf'
+	self.urdf_pointer = self.getLimit(self.urdf_path)
+	self.current_name = self.getCurrentName()
+	self.limits = {}
+	for i in range(len(self.current_name)):
+	    if "yaw" not in self.current_name[i]:
+		lower = self.urdf_pointer[self.current_name[i]]['lower']
+		upper = self.urdf_pointer[self.current_name[i]]['upper']
+		limit_factor = (upper - lower) / 100.0
+		self.limits[self.joint_name[i]] = {"limit" : limit_factor}
+	
+	#widget slider, lineEdit and pushButton connect
+	self.slider_widget = [self._widget.horizontalSlider_hip, self._widget.horizontalSlider_knee,
+	                 self._widget.horizontalSlider_yaw]
+	self.lineEdit_widget = [self._widget.lineEdit_hip, self._widget.lineEdit_knee,
+	                        self._widget.lineEdit_yaw]	
+	for slider in self.slider_widget:
+	    slider.valueChanged.connect(self.slider_changed)
+	for lineEdit in self.lineEdit_widget:
+	    lineEdit.textChanged.connect(self.lineEdit_changed)
         
         self._widget.pushButton_reset.clicked.connect(self.pushButton_reset)
         self._widget.pushButton_go.clicked.connect(self.pushButton_go)
@@ -111,76 +112,55 @@ class DragonDataControl(Plugin):
         self._widget.pushButton_stop.clicked.connect(self.pushButton_stop)
         self._widget.pushButton_get.clicked.connect(self.pushButton_get)
         
+	self.update_lineEdit()
         
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         # Add widget to the user interface
         context.add_widget(self._widget)
-
-        #timer
         
     def slider_changed(self):
         if self._if_slider:
-            self.dragon_pointer['hip']['value'] = (self._widget.horizontalSlider_hip.value() ) * self.factor
-            self.dragon_pointer['knee']['value'] = (self._widget.horizontalSlider_knee.value()) * self.factor
-            self.dragon_pointer['yaw']['value'] = (self._widget.horizontalSlider_yaw.value())* self.factor
+	    for index in range(len(self.dragon_pointer.keys())):
+		self.dragon_pointer[self.joint_name[index]]['value'] = self.slider_widget[index].value() * self.factor
             self.update_lineEdit()
         self._if_slider = True
     
     def lineEdit_changed(self):
         if self._if_edit:
-            self.dragon_pointer['hip']['value'] = float(self._widget.lineEdit_hip.text())
-            self.dragon_pointer['knee']['value'] = float(self._widget.lineEdit_knee.text())
-            self.dragon_pointer['yaw']['value'] = float(self._widget.lineEdit_yaw.text())
+	    for index in range(len(self.dragon_pointer.keys())):
+		self.dragon_pointer[self.joint_name[index]]['value'] = float(self.lineEdit_widget[index].text())
             self.update_slider()
-        self._if_edit = True
+	self._if_edit = True
     
     def update_lineEdit(self):
-        self._widget.lineEdit_hip.setText(str(round(self.dragon_pointer['hip']['value'], 3)))
-        self._widget.lineEdit_knee.setText(str(round(self.dragon_pointer['knee']['value'], 3)))
-        self._widget.lineEdit_yaw.setText(str(round(self.dragon_pointer['yaw']['value'], 3)))
-        self._if_edit = False
-        
+	for index in range(len(self.lineEdit_widget)):
+	    self._if_edit = False
+	    self.lineEdit_widget[index].setText(str(round(self.dragon_pointer[self.joint_name[index]]['value'], 3)))
+                
     def update_slider(self):
-        self._widget.horizontalSlider_hip.setValue(self.dragon_pointer['hip']['value']/self.factor )
-        self._widget.horizontalSlider_knee.setValue(self.dragon_pointer['knee']['value']/self.factor)
-        self._widget.horizontalSlider_yaw.setValue(self.dragon_pointer['yaw']['value']/self.factor)
-        self._if_slider = False
+	for index in range(len(self.slider_widget)):
+	    self._if_slider = False
+	    self.slider_widget[index].setValue(self.dragon_pointer[self.joint_name[index]]['value']/self.factor)
         
     def pushButton_reset(self):
         self._if_edit = False
         self._if_slider = False
-        self._widget.lineEdit_hip.setText(str(0.0))
-        self._widget.lineEdit_knee.setText(str(0.0))
-        self._widget.lineEdit_yaw.setText(str(0.0))
-        
+	for lineEdit in self.lineEdit_widget:
+	    lineEdit.setText(str(0.0))
+       
     def pushButton_go(self):
-    	current_leg = self._widget.comboBox_leg.currentText()
-    	current_type = self._widget.comboBox_type.currentText()
-    	joint_data = Float64MultiArray()
-    	joint_data.data = [1000,1000, 1000, 1000, 1000 , 1000, 1000, 1000,1000,1000,1000,1000]
-    	#joint_data.data = [0,0,0,0,0,0,0,0,0,0,0,0]
-    	#for i in range(12):
-    	#	joint_data.data[i] = self.sub_msg_pos[i]
-    	if "Position" == current_type:
-    		if "L-F" == current_leg:
-    			joint_data.data[0] = self.dragon_pointer['hip']['value']
-    			joint_data.data[1] = self.dragon_pointer['knee']['value']
-    			joint_data.data[2] = self.dragon_pointer['yaw']['value']
-    		elif "L-B" == current_leg:
-    			joint_data.data[3] = self.dragon_pointer['hip']['value']
-    			joint_data.data[4] = self.dragon_pointer['knee']['value']
-    			joint_data.data[5] = self.dragon_pointer['yaw']['value']
-    		elif "R-F" == current_leg:
-    			joint_data.data[6] = self.dragon_pointer['hip']['value']
-    			joint_data.data[7] = self.dragon_pointer['knee']['value']
-    			joint_data.data[8] = self.dragon_pointer['yaw']['value']
-    		elif "R-B" == current_leg:
-    			joint_data.data[9] = self.dragon_pointer['hip']['value']
-    			joint_data.data[10] = self.dragon_pointer['knee']['value']
-    			joint_data.data[11] = self.dragon_pointer['yaw']['value']
-            
-        self._publisher_command.publish(joint_data)
+
+	current_leg = self._widget.comboBox_leg.currentText()
+	current_type = self._widget.comboBox_type.currentText()
+	joint_data = Float64MultiArray()
+	joint_data.data = [1000 for n in range(12)]
+	
+	index = self.leg_name.index(current_leg) * 3
+	for key in self.joint_name:
+	    joint_data.data[index] = self.dragon_pointer[key]['value']
+	    index += 1	
+	self._publisher_command.publish(joint_data)
 
     def sub_cb(self,msg):
         self.sub_msg_pos = msg.position
@@ -189,48 +169,20 @@ class DragonDataControl(Plugin):
     def pushButton_get(self):
         current_leg = self._widget.comboBox_leg.currentText()
         current_type = self._widget.comboBox_type.currentText()
-        if "Position" == current_type:
-            if "L-B" == current_leg:
-                self.dragon_pointer['hip']['value'] = self.sub_msg_pos[0]
-                self.dragon_pointer['knee']['value'] = self.sub_msg_pos[1]
-                self.dragon_pointer['yaw']['value'] = self.sub_msg_pos[2]
-            elif 'L-F' == current_leg:
-                self.dragon_pointer['hip']['value'] = self.sub_msg_pos[3]
-                self.dragon_pointer['knee']['value'] = self.sub_msg_pos[4]
-                self.dragon_pointer['yaw']['value'] = self.sub_msg_pos[5]
-            elif 'R-B' == current_leg:
-                self.dragon_pointer['hip']['value'] = self.sub_msg_pos[6]
-                self.dragon_pointer['knee']['value'] = self.sub_msg_pos[7]
-                self.dragon_pointer['yaw']['value'] = self.sub_msg_pos[8]
-            elif 'R-F' == current_leg:
-                self.dragon_pointer['hip']['value'] = self.sub_msg_pos[9]
-                self.dragon_pointer['knee']['value'] = self.sub_msg_pos[10]
-                self.dragon_pointer['yaw']['value'] = self.sub_msg_pos[11]
-        elif 'Velocity' == current_type:
-    	    if "L-B" == current_leg:
-        		self.dragon_pointer['hip']['value'] = self.sub_msg_vel[0]
-        		self.dragon_pointer['knee']['value'] = self.sub_msg_vel[1]
-        		self.dragon_pointer['yaw']['value'] = self.sub_msg_vel[2]
-    	    elif 'L-F' == current_leg:
-        		self.dragon_pointer['hip']['value'] = self.sub_msg_vel[3]
-        		self.dragon_pointer['knee']['value'] = self.sub_msg_vel[4]
-        		self.dragon_pointer['yaw']['value'] = self.sub_msg_vel[5]
-    	    elif 'R-B' == current_leg:
-        		self.dragon_pointer['hip']['value'] = self.sub_msg_vel[6]
-        		self.dragon_pointer['knee']['value'] = self.sub_msg_vel[7]
-        		self.dragon_pointer['yaw']['value'] = self.sub_msg_vel[8]
-    	    elif 'R-F' == current_leg:
-        		self.dragon_pointer['hip']['value'] = self.sub_msg_vel[9]
-        		self.dragon_pointer['knee']['value'] = self.sub_msg_vel[10]
-        		self.dragon_pointer['yaw']['value'] = self.sub_msg_vel[11]
-                #rospy.loginfo("I get %s %s %s",self.sub_msg_vel[9],self.sub_msg_vel[10],self.sub_msg_vel[11])
 
-        self.update_lineEdit()
-
+	index = self.leg_name.index(current_leg) * 3
+	for key in self.joint_name:
+	    if "Position" == current_type:
+		self.dragon_pointer[key]['value'] = self.sub_msg_pos[index]
+	    elif "Velocity" == current_type:
+		self.dragon_pointer[key]['value'] = self.sub_msg_vel[index]
+	    index += 1
+	self.update_lineEdit()
+	    
     def data_pub(self):
         while(self._if_load):
             msg = Float64MultiArray()
-            msg.data = [0,0,0, 0, 0, 0, 0, 0,0,0,0,0]
+            msg.data = [0 for n in range(12)]
             for i in range(len(self.hip_data)):
                 if self._if_load:
                     msg.data[0] = self.hip_data[i]
