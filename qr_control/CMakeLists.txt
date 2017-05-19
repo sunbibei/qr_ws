@@ -12,27 +12,42 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
 endif()
 
-find_package(catkin REQUIRED urdf)
+find_package(catkin REQUIRED COMPONENTS cmake_modules urdf kdl_parser)
 find_package(Boost REQUIRED COMPONENTS thread)
+find_package(orocos_kdl REQUIRED)
 
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES qr_control_lib
-  CATKIN_DEPENDS
-  DEPENDS system_lib Boost
+  CATKIN_DEPENDS kdl_parser
+  DEPENDS system_lib glog orocos_kdl
 )
 
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 set(DDP_FILES
+  src/test_4_qr_walker.cpp
+  src/qr_walk_scheduler.cpp
   src/position_joint_group_controller.cpp
   src/position_reset.cpp)
   
 add_library(qr_control_lib ${DDP_FILES} )
 
- target_link_libraries(qr_control_lib
+add_executable(qr_test
+  src/testKDL.cpp)
+
+target_link_libraries(qr_control_lib
   ${catkin_LIBRARIES}
-  ${qr_control_lib_libraries}
+  ${orocos_kdl_LIBRARIES}
+  ${kdl_parser_LIBRARIES}
+  glog
+ )
+
+ target_link_libraries(qr_test
+  ${catkin_LIBRARIES}
+  ${orocos_kdl_LIBRARIES}
+  ${kdl_parser_LIBRARIES}
+  glog
  )

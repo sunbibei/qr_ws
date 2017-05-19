@@ -9,9 +9,9 @@ const int Height = 45;
 const  int Foot_Steps = 10;
 const  int Swing_Height = 4;
 
-const  int Init_Num = 50;
-const  int Swing_Num  = 50;
-const  int Stance_Num = 50;
+const  int Init_Num = 500;
+const  int Swing_Num  = 5000;
+const  int Stance_Num = 5000;
 const  int Update_Rate = 1000;
 
 const double L0 = 4;

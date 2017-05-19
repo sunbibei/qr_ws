@@ -164,13 +164,13 @@ set(BIN_FILES src/main.cpp
 )
 
 ## Declare a C++ library
-add_library(hardware_lib
-  ${HW_FILES}
-)
+# add_library(hardware_lib
+#   ${HW_FILES}
+# )
 
-add_library(propagate_lib
-  ${PROPA_FILES}
-)
+# add_library(propagate_lib
+#   ${PROPA_FILES}
+# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -178,34 +178,34 @@ add_library(propagate_lib
 # add_dependencies(qr_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(qr_driver
-  ${BIN_FILES}
-)
+# add_executable(qr_driver
+#   ${BIN_FILES}
+# )
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(dragon_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(hardware_lib
-  ${catkin_LIBRARIES}
-  glog
-)
+# target_link_libraries(hardware_lib
+#   ${catkin_LIBRARIES}
+#   glog
+# )
 
-target_link_libraries(propagate_lib
-  ${catkin_LIBRARIES}
-  glog
-  pcanbasic
-)
+# target_link_libraries(propagate_lib
+#   ${catkin_LIBRARIES}
+#   glog
+#   pcanbasic
+# )
 
-target_link_libraries(qr_driver
-  ${catkin_LIBRARIES}
-  ${dragon_driver_lib_LIBRARIES}
-  glog
-  pcanbasic
-  hardware_lib
-  propagate_lib
-)
+# target_link_libraries(qr_driver
+#   ${catkin_LIBRARIES}
+#   ${dragon_driver_lib_LIBRARIES}
+#   glog
+#   pcanbasic
+#   hardware_lib
+#   propagate_lib
+# )
 
 #############
 ## Install ##
