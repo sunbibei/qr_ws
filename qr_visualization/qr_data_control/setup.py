@@ -4,7 +4,7 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
-    packages=['dragon_data_control'],
+    packages=['qr_data_control'],
     package_dir={'': 'src'}
 )
 

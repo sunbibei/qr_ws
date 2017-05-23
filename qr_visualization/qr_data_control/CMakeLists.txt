@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(dragon_data_control)
+project(qr_data_control)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -152,7 +152,7 @@ catkin_package(
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
-install(PROGRAMS scripts/dragon_data_control
+install(PROGRAMS scripts/qr_data_control
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 ## Mark executables and/or libraries for installation

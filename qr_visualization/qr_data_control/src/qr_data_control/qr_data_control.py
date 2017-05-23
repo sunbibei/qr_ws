@@ -23,23 +23,23 @@ LEG_NAME = ['L-B' , 'L-F' , 'R-B' , 'R-F']
 DATA_TPYE = ['Position' , 'Velocity' , 'Effort']
 JOINT_NAME = ['hip', 'knee', 'yaw']
 
-class DragonDataControl(Plugin):
+class QrDataControl(Plugin):
 
     def __init__(self, context):
-        super(DragonDataControl, self).__init__(context)
+        super(QrDataControl, self).__init__(context)
         # Give QObjects reasonable names
-        self.setObjectName('DragonDataControl')
+        self.setObjectName('QrDataControl')
 
         # Create QWidget
         self._widget = QWidget()
         # Get path to UI file which should be in the "resource" folder of this package
         rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('dragon_data_control'), 'resource', 'data_control.ui')
-        self.doc_path = rp.get_path('dragon_data_control') + '/src/dragon_data_control/data.txt'
+        ui_file = os.path.join(rp.get_path('qr_data_control'), 'resource', 'data_control.ui')
+        self.doc_path = rp.get_path('qr_data_control') + '/src/qr_data_control/data.txt'
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
-        self._widget.setObjectName('DragonDataControl')
+        self._widget.setObjectName('QrDataControl')
 
         #init variable
         self.dragon_pointer = {}
@@ -47,8 +47,7 @@ class DragonDataControl(Plugin):
         for key in self.joint_name:
             self.dragon_pointer[key] = {'name': key , 'value': 0.0}
         self.factor = (MAX_VALUE-MIN_VALUE)/100.0
-        
-	
+        	
 	#determine the source of the change
         self._if_edit = True
         self._if_slider = True
@@ -59,7 +58,6 @@ class DragonDataControl(Plugin):
         self.knee_data = []
         self.sub_msg_pos = []
         self.sub_msg_vel = []
-
 	
 	#threading
 	self.lock = threading.Lock()
@@ -70,11 +68,11 @@ class DragonDataControl(Plugin):
 	try:
 	    self._publisher_command = rospy.Publisher(self.cmd_topic_name, Float64MultiArray , queue_size=10)
 	except ROSException, e:
-	    rospy.logerr('Dragon_data_control: Error creating publisher for topic %s (%s)'%(self._pub_topic, e))
+	    rospy.logerr('qr_data_control: Error creating publisher for topic %s (%s)'%(self._pub_topic, e))
         try:
             self.sub_command = rospy.Subscriber(self.state_topic_name, JointState, self.sub_cb)
         except ROSException, e:
-            rospy.logerr('Dragon_data_control: Error connecting topic (%s)'%e)
+            rospy.logerr('qr_data_control: Error connecting topic (%s)'%e)
                     
         #widget for comboBox
         self.leg_name = LEG_NAME
@@ -207,7 +205,8 @@ class DragonDataControl(Plugin):
             self.data_thread = threading.Thread(target=self.data_pub)
             self.data_thread.setDaemon(True)
             self.data_thread.start()
-        except:
+        except Exception,e:
+	    print Exception," : ", e
             print 'thread is wrong!'
         finally:
             self.lock.release()

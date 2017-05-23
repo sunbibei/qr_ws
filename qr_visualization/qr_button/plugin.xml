@@ -12,7 +12,7 @@
         <label>Subgroup</label>
       </group>
       -->
-      <label>QrButton</label>
+      <label>Button</label>
       <icon type="theme">utilities-system-monitor</icon>
       <statustip>A qr_button modula for qr_visualization.</statustip>
     </qtgui>

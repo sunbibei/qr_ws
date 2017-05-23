@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>dragon_data_control</name>
+  <name>qr_data_control</name>
   <version>0.0.0</version>
   <description>The dragon_data_control package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="zhangzhi@todo.todo">zhangzhi</maintainer>
+  <maintainer email="2673549804@qq.com">zhangzhi</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->

@@ -1,7 +1,7 @@
 <library path="src">
-  <class name="DragonDataControl" type="dragon_data_control.dragon_data_control.DragonDataControl" base_class_type="rqt_gui_py::Plugin">
+  <class name="QrDataControl" type="qr_data_control.qr_data_control.QrDataControl" base_class_type="rqt_gui_py::Plugin">
     <description>
-      A data control modula for dragon_visualization.
+      A data control modula for qr_visualization.
     </description>
     <qtgui>
       <!-- optional grouping...
@@ -12,7 +12,7 @@
         <label>Subgroup</label>
       </group>
       -->
-      <label>DragonDataControl</label>
+      <label>DataControl</label>
       <icon type="theme">input-gaming</icon>
       <statustip>A dragon_data_control modula for dragon_visualization.</statustip>
     </qtgui>
