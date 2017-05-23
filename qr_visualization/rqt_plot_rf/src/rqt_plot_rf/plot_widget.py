@@ -86,6 +86,7 @@ class PlotWidget(QWidget):
             #self.data_plot.add_curve(self._topic_name , self._topic_name , data_x, data_y)
                 self.data_plot.add_curve(self.curve[key]['topic_name'] , self.curve[key]['topic_name'] , self.curve[key]['buff_x_temp'] , self.curve[key]['buff_y_temp'])
         #self.enable_timer(enabled= True)
+        
         self.data_plot.redraw()
         
     def _motor_cb(self , msg):

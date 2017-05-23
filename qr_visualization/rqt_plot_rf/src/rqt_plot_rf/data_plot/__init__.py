@@ -537,3 +537,4 @@ class DataPlot(QWidget):
             qWarning("No plot widget; can't set Y limits")
 
     # signal on y limit changed?
+    

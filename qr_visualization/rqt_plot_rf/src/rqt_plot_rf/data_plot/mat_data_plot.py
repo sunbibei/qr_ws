@@ -89,6 +89,7 @@ else:
 from matplotlib.figure import Figure
 
 import numpy
+from pylab import *
 
 
 class MatDataPlot(QWidget):
@@ -111,6 +112,7 @@ class MatDataPlot(QWidget):
     def __init__(self, parent=None):
         super(MatDataPlot, self).__init__(parent)
         self._canvas = MatDataPlot.Canvas()
+        self._canvas.mpl_connect('button_press_event', self.on_click)
         #self._toolbar = NavigationToolbar(self._canvas, self._canvas)
         vbox = QVBoxLayout()
         #vbox.addWidget(self._toolbar)
@@ -179,3 +181,9 @@ class MatDataPlot(QWidget):
 
     def get_ylim(self):
         return list(self._canvas.axes.get_ybound())
+    
+    def on_click(self, event):
+        loc_str = str(event.xdata) + " , " + str(event.ydata)
+        self._canvas.axes.text(event.xdata, event.ydata, loc_str)
+        self.redraw()
+        #print event.xdata, event.ydata
