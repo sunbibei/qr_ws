@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(dragon_data_read)
+project(qr_data_read)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -148,7 +148,7 @@ catkin_package(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS scripts/dragon_data_read
+install(PROGRAMS scripts/qr_data_read
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

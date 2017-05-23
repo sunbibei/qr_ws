@@ -2,8 +2,8 @@ from __future__ import division
 import os
 import rospkg
 import threading
-
 import rospy
+
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Slot, QBasicTimer, SIGNAL
 from python_qt_binding.QtGui import QKeySequence, QShortcut, QWidget, QPixmap, QMessageBox, QStandardItemModel,QStandardItem
@@ -33,15 +33,10 @@ class DataRead(Plugin):
         #ui
         self._widget = QWidget()
         rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('dragon_data_read'),'resource','DragonDataRead.ui')
+        ui_file = os.path.join(rp.get_path('qr_data_read'),'resource','DragonDataRead.ui')
         loadUi(ui_file, self._widget)
         self._widget.setObjectName('DataRead')
                
-        # Show _widget.windowTitle on left-top of each plugin (when 
-        # it's set in _widget). This is useful when you open multiple 
-        # plugins at once. Also if you open multiple instances of your 
-        # plugin at once, these lines add number to make it easy to 
-        # tell from pane to pane.
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         # Add widget to the user interface
@@ -74,38 +69,32 @@ class DataRead(Plugin):
         for i in range(len(self.cur_index)):
             lcdNumber_name = 'lcdNumber_' + self.cur_index[i]
             getattr(self._widget,lcdNumber_name).setStyleSheet("background-color : rgb(192,192,192)")            
+        
         #init rostopic to connect
         self._motor_topic = CONTROLLER_TOPIC
         self._encorder_topic = ENCORDER_TOPIC
-        self._ele_cur_topic = ELE_CUR_TOPIC
-        
+        self._ele_cur_topic = ELE_CUR_TOPIC        
         #subscribe
         try:
             self._motor_subscriber = rospy.Subscriber(self._motor_topic, Float64MultiArray , self._receive_motor_data)
         except ValueError, e:
-            rospy.logerr('dragon_data_read: Error connecting topic (%s)'%e)
+            rospy.logerr('qr_data_read: Error connecting topic (%s)'%e)
         try:
             self._encorder_subscriber = rospy.Subscriber(self._encorder_topic, JointState , self._receive_encorder_data)
         except ValueError, e:
-            rospy.logerr('dragon_data_read: Error connecting topic (%s)'%e)
+            rospy.logerr('qr_data_read: Error connecting topic (%s)'%e)
         try:
             self.ele_cur_subscriber = rospy.Subscriber(self._ele_cur_topic, Float64MultiArray , self._receive_cur_data)
         except ValueError, e:
-            rospy.logerr('dragon_data_read: Error connecting topic (%s)'%e)
-
-        #timer
-        #self._init_timers()
+            rospy.logerr('qr_data_read: Error connecting topic (%s)'%e)
 
     def _receive_motor_data(self, msg):
-        #self.lock.acquire()
         for i in range(len(msg.data)):
             self.dragon_joint_pointer[self.dragon_joint_index[i]]['motor']['position'] = msg.data[i]
             motor_lcdNumber_name = 'lcdNumber_' + self.dragon_joint_index[i] + 'm' + '_pos'
             getattr(self._widget,motor_lcdNumber_name).display(self.dragon_joint_pointer[self.dragon_joint_index[i]]['motor']['position'])
-        #self.lock.release()
             
     def _receive_encorder_data(self, msg):
-        #self.lock.acquire()
         for i in range(len(msg.position)):
             self.dragon_joint_pointer[self.dragon_joint_index[i]]['encorder']['position'] = msg.position[i]
             encorder_lcdNumber_name = 'lcdNumber_' + self.dragon_joint_index[i] + 'e' + '_pos'
@@ -117,7 +106,6 @@ class DataRead(Plugin):
             getattr(self._widget, cur_lcdNumber_name).display(msg.data[i])
     
     def shutdown_plugin(self):
-        #self._timer.stop()
         self._motor_subscriber.unregister()
         self._encorder_subscriber.unregister()
         self.ele_cur_subscriber.unregister()

@@ -4,7 +4,7 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
-    packages=['dragon_data_read'],
+    packages=['qr_data_read'],
     package_dir={'': 'src'}
 )
 
