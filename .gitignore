@@ -13,3 +13,4 @@ __pycache__/
 qr_visualization/qr_data_write/data/*
 qr_visualization/qr_visualization.wpr
 qr_visualization/qr_visualization.wpu
+qr_visualization/qr_button/src/qr_button/rqt.txt

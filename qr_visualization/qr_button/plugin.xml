@@ -1,7 +1,7 @@
 <library path="src">
-  <class name="DragonButton" type="dragon_button.dragon_button.DragonButton" base_class_type="rqt_gui_py::Plugin">
+  <class name="QrButton" type="qr_button.qr_button.QrButton" base_class_type="rqt_gui_py::Plugin">
     <description>
-      A button modula for dragon_visualization.
+      A button modula for qr_visualization.
     </description>
     <qtgui>
       <!-- optional grouping...
@@ -12,9 +12,9 @@
         <label>Subgroup</label>
       </group>
       -->
-      <label>DragonButton</label>
+      <label>QrButton</label>
       <icon type="theme">utilities-system-monitor</icon>
-      <statustip>A dragon_button modula for dragon_visualization.</statustip>
+      <statustip>A qr_button modula for qr_visualization.</statustip>
     </qtgui>
   </class>
 </library>
