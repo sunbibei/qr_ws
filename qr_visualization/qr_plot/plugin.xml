@@ -1,0 +1,19 @@
+<library path="src">
+  <class name="Plot" type="qr_plot.plot.Plot" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A plugin to plot in 2D for qr_visualization.
+    </description>
+    <qtgui>
+    	<!--
+      <group>
+        <label>Visualization</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
+      </group>
+    -->
+      <label>qr_plot</label>
+      <icon type="theme">utilities-system-monitor</icon>
+      <statustip> A plugin to plot in 2D for qr_visualization.</statustip>
+    </qtgui>
+  </class>
+</library>
