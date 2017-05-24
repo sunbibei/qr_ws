@@ -4,16 +4,13 @@
       A data read modula for qr_visualization.
     </description>
     <qtgui>
-      <!-- optional grouping...
       <group>
-        <label>Group</label>
+        <label>qr_visualization</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
       </group>
-      <group>
-        <label>Subgroup</label>
-      </group>
-      -->
-      <label>DataRead</label>
-      <icon type="theme">input-gaming</icon>
+      <label>qr_data_read</label>
+      <icon type="theme">utilities-system-monitor</icon>
       <statustip>A data read modula for qr_visualization.</statustip>
     </qtgui>
   </class>

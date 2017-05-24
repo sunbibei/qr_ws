@@ -4,15 +4,12 @@
       A button modula for qr_visualization.
     </description>
     <qtgui>
-      <!-- optional grouping...
       <group>
-        <label>Group</label>
+        <label>qr_visualization</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
       </group>
-      <group>
-        <label>Subgroup</label>
-      </group>
-      -->
-      <label>Button</label>
+      <label>qr_button</label>
       <icon type="theme">utilities-system-monitor</icon>
       <statustip>A qr_button modula for qr_visualization.</statustip>
     </qtgui>

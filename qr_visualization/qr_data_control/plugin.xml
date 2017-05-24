@@ -4,16 +4,13 @@
       A data control modula for qr_visualization.
     </description>
     <qtgui>
-      <!-- optional grouping...
       <group>
-        <label>Group</label>
+        <label>qr_visualization</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
       </group>
-      <group>
-        <label>Subgroup</label>
-      </group>
-      -->
-      <label>DataControl</label>
-      <icon type="theme">input-gaming</icon>
+      <label>qr_data_control</label>
+      <icon type="theme">utilities-system-monitor</icon>
       <statustip>A dragon_data_control modula for dragon_visualization.</statustip>
     </qtgui>
   </class>

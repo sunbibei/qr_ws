@@ -4,14 +4,12 @@
       A plugin of doc-data to plot in 2D for qr_visualization. 
     </description>
     <qtgui>
-    	<!--
       <group>
-        <label>Visualization</label>
+        <label>qr_visualization</label>
         <icon type="theme">folder</icon>
         <statustip>Plugins related to visualization.</statustip>
       </group>
-    -->
-      <label>Panel</label>
+      <label>qr_panel</label>
       <icon type="theme">utilities-system-monitor</icon>
       <statustip>A plugin of doc-data to plot in 2D for qr_visualization.</statustip>
     </qtgui>
