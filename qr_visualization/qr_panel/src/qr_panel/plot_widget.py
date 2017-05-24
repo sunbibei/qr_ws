@@ -22,7 +22,7 @@ from rqt_py_common import topic_helpers
 MOTOR_TOPIC_NAME = "/debug"
 ENCORDER_TOPIC_NAME = "/joint_states"
 FOLLOWjOINT_NAME = "/follow_joint"
-JOINT_DATA = ['hip_cmd' ,  'hip_state']
+JOINT_DATA = ['cmd' ,  'state']
 
 LEG_NAME =['L-B' , 'L-F' , 'R-B' ,'R-F']
 JOINT_NAME = ['hip' , 'knee' ,'yaw']
@@ -37,7 +37,7 @@ class PlotWidget(QWidget):
         
         #ui
         rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('dragon_control_panel') , 'resource' , 'plot.ui')
+        ui_file = os.path.join(rp.get_path('qr_panel') , 'resource' , 'plot.ui')
         loadUi(ui_file , self)
             
         #timer
@@ -69,15 +69,15 @@ class PlotWidget(QWidget):
         try:
             self.publish_command = rospy.Publisher(self.pub_topic_name, Float64MultiArray, queue_size = 10)
 	except ROSException, e:
-	    rospy.logerr('Dragon_control_pannel: Error creating publisher for topic %s (%s)'%(self.pub_topic_name, e))
+	    rospy.logerr('qr_panel: Error creating publisher for topic %s (%s)'%(self.pub_topic_name, e))
 	try:
 	    self.subscriber = rospy.Subscriber(self.sub_topic_name, JointState, self.ros_cb)
 	except ROSException, e:
-	    rospy.logerr('Dragon_control_pannel: Error creating subscriber for topic %s (%s)'%(self.sub_topic_name, e))
+	    rospy.logerr('qr_panel: Error creating subscriber for topic %s (%s)'%(self.sub_topic_name, e))
 	try:
 	    self.FollowJoint_publish = rospy.Publisher(self.follow_joint_pub_name, JointTrajectoryPoint , queue_size = 10)
 	except ROSException, e:
-	    rospy.logerr('Dragon_control_pannel: Error creating subscriber for topic %s (%s)'%(self.sub_topic_name, e))
+	    rospy.logerr('qr_panel: Error creating subscriber for topic %s (%s)'%(self.sub_topic_name, e))
         
         #comboBox widget
         self.leg_name = LEG_NAME
@@ -88,17 +88,17 @@ class PlotWidget(QWidget):
             self.comboBox_joint.addItem(key)
 	
 	self.current_leg = self.comboBox_leg.currentText()
-	self.current_joint = self.comboBox_joint.currentText()	
+	self.current_joint = self.comboBox_joint.currentText()
+	self.comboBox_leg.currentIndexChanged.connect(self.comboBox_changed)
+	self.comboBox_joint.currentIndexChanged.connect(self.comboBox_changed)	
+        
         self.pushButton_open.clicked.connect(self.pB_open)
         self.pushButton_load.clicked.connect(self.pB_load)
-
         self.pushButton_start.setStyleSheet("background-color: rgb(128,255,0)")
         self.label_on.setStyleSheet("background-color:rgb(255,0,0)")
         self.pushButton_start.clicked.connect(self.pB_start)
         self.pushButton_pause.clicked.connect(self.pB_pause)
-        self.pushButton_preview.clicked.connect(self.pB_preview)
-	self.comboBox_leg.currentIndexChanged.connect(self.comboBox_changed)
-	self.comboBox_joint.currentIndexChanged.connect(self.comboBox_changed)	
+        self.pushButton_preview.clicked.connect(self.pB_preview)	
      
     def switch_data_plot_widget(self , data_plot):
         self.enable_timer(enabled = False)
@@ -109,15 +109,7 @@ class PlotWidget(QWidget):
         
         self.data_plot = data_plot
         self.data_plot_layout.addWidget(self.data_plot)
-        self.data_plot.autoscroll(enabled = True)
-        
-        #data_x , data_y = self.next()
-        self.next()
-        for key in self.curve:
-            if self.curve[key]['enable']:
-            #self.data_plot.add_curve(self._topic_name , self._topic_name , data_x, data_y)
-                self.data_plot.add_curve(self.curve[key]['topic_name'] , self.curve[key]['topic_name'] , self.curve[key]['buff_x_temp'] , self.curve[key]['buff_y_temp'])
-    
+        self.data_plot.autoscroll(enabled = True)    
         self.data_plot.redraw()
     
     def ros_cb(self, msg):
@@ -127,8 +119,8 @@ class PlotWidget(QWidget):
 		index = self.leg_name.index(self.current_leg) * 3
 		offset = self.joint_name.index(self.current_joint)
 		num = index+offset
-		self.curve['hip_state']['buff_y'].append(msg.position[num])
-		self.curve['hip_state']['buff_x'].append(rospy.get_time() - self.start_time)
+		self.curve['state']['buff_y'].append(msg.position[num])
+		self.curve['state']['buff_x'].append(rospy.get_time() - self.start_time)
 	    except AttributeError as e:
 		self.error = RosPlotException("invalid topic data")
 	finally:
@@ -137,27 +129,27 @@ class PlotWidget(QWidget):
     def comboBox_changed(self):
 	self.current_leg = self.comboBox_leg.currentText()
 	self.current_joint = self.comboBox_joint.currentText()
+	
     def pB_open(self):
         filename,filetype = QFileDialog.getOpenFileName(self, "pick document", "/home",)
-        #print filetype
         self.lineEdit_filename.setText(str(filename))
+	
     def pB_load(self):
         filename = self.lineEdit_filename.text()
         final_file_name = filename.split('/')[-1]
         if ".json" in final_file_name:
             self._if_load = True
             self.enable_timer(enabled= True)
-            self.data_plot.add_curve(self.curve['hip_cmd']['topic_name'], final_file_name ,
-	                             self.curve['hip_cmd']['buff_x_temp'], self.curve['hip_cmd']['buff_y_temp'])
+            self.data_plot.add_curve(self.curve['cmd']['topic_name'], self.curve['cmd']['topic_name'] ,
+	                             self.curve['cmd']['buff_x_temp'], self.curve['cmd']['buff_y_temp'])
 	    try:
 		with open(filename,'r') as f:
 		    self.curve_data = json.load(f)
-		    #print self.curve_data
 	    except Exception, e:
 		print Exception, ' : ', e
-            #print self.curve_data['lf']['hip']['value']
+		
 	    self.json2JointTrajectory(self.curve_data, self.current_leg, self.current_joint)
-            #print self.curve_data[current_leg][current_joint]['value']
+
             try:
                 self.data_list = self.curve_data[self.current_leg][self.current_joint]['value']
             except Exception,e:
@@ -166,10 +158,11 @@ class PlotWidget(QWidget):
                  
     def pB_start(self):
         if 'Start' == self.pushButton_start.text():
-	    self.curve['hip_state']['enable'] = True
-	    self.data_plot.add_curve(self.curve['hip_state']['topic_name'], "state" ,self.curve['hip_state']['buff_x_temp'], self.curve['hip_state']['buff_y_temp'])
+	    self.curve['state']['enable'] = True
+	    self.data_plot.add_curve(self.curve['state']['topic_name'], self.curve['state']['topic_name'] ,
+	                             self.curve['state']['buff_x_temp'], self.curve['state']['buff_y_temp'])
             if self._if_load:
-                self.curve['hip_cmd']['enable'] = True           
+                self.curve['cmd']['enable'] = True           
             self.pushButton_start.setText('Stop')
             self.pushButton_start.setStyleSheet("background-color: rgb(255,0,0)")
             self.label_on.setText('ON')
@@ -178,18 +171,19 @@ class PlotWidget(QWidget):
         elif 'Stop' == self.pushButton_start.text():
             self._if_load = False
 	    self._if_pub = False
-            self.curve['hip_cmd']['enable'] = False
-	    self.curve['hip_state']['enable'] = False
+            self.curve['cmd']['enable'] = False
+	    self.curve['state']['enable'] = False
             self.pushButton_start.setText('Start')
             self.pushButton_start.setStyleSheet("background-color: rgb(128,255,0)")
             self.label_on.setText('OFF')
             self.label_on.setStyleSheet("background-color: rgb(255,0,0)")            
             try:
-                self.data_plot.remove_curve('hip_cmd')
-                self.data_plot.remove_curve('hip_state')
+                self.data_plot.remove_curve('cmd')
+                self.data_plot.remove_curve('state')
                 self.update_plot()
                 self.enable_timer(enabled= False)
-            except:
+            except Exception,e:
+		print Exception, " : ", e
                 print "curve dosen't exist"
                 
     def pB_pause(self):
@@ -202,7 +196,7 @@ class PlotWidget(QWidget):
     def pB_preview(self):
         self._if_preview = True
 	if self._if_load:
-	    self.curve['hip_cmd']['enable'] = True
+	    self.curve['cmd']['enable'] = True
 
     def next(self):
         #return next data of topic like [xdata] [ydata]
@@ -226,14 +220,14 @@ class PlotWidget(QWidget):
 		self.next()
                 if not self._if_pause:
                     for each_data in self.data_list:
-                        self.curve['hip_cmd']['buff_x_temp'].append(rospy.get_time() - self.start_time)
-                        self.curve['hip_cmd']['buff_y_temp'].append(each_data)
+                        self.curve['cmd']['buff_x_temp'].append(rospy.get_time() - self.start_time)
+                        self.curve['cmd']['buff_y_temp'].append(each_data)
                     for key in self.curve:
                         if self.curve[key]['enable']:
                             self.data_plot.update_values(self.curve[key]['topic_name'] , self.curve[key]['buff_x_temp'] , self.curve[key]['buff_y_temp'])
                     needs_redraw = True
-                    self.curve['hip_cmd']['buff_x_temp'] = []
-                    self.curve['hip_cmd']['buff_y_temp'] = []
+                    self.curve['cmd']['buff_x_temp'] = []
+                    self.curve['cmd']['buff_y_temp'] = []
             except RosPlotException as e:
                 qWarning('PlotWidget : update_plot(): error in rosplot %s '%e)
 	    
@@ -252,7 +246,8 @@ class PlotWidget(QWidget):
 	    if self._if_load:
 		for data in self.data_list:
 		    joint_data.data[order] = data
-		    self.publish_command.publish(joint_data)		
+		    self.publish_command.publish(joint_data)
+		    
     def json2JointTrajectory(self,curve_data, current_leg, current_joint):
 	trajectory_data = JointTrajectoryPoint()
 	trajectory_data.positions = [0]
@@ -274,6 +269,9 @@ class PlotWidget(QWidget):
     def clean_up_subscribers(self):
         for key in self.curve:
             self.data_plot.remove_curve(self.curve[key]['topic_name'])
+	self.publish_command.unregister()
+	self.subscriber.unregister()
+	self.FollowJoint_publish.unregister()
             
         
             
