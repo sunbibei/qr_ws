@@ -9,3 +9,5 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+
+qr_data_write/data/*

@@ -154,7 +154,7 @@ class DragonDataControl(Plugin):
 	current_leg = self._widget.comboBox_leg.currentText()
 	current_type = self._widget.comboBox_type.currentText()
 	joint_data = Float64MultiArray()
-	joint_data.data = [1000,1000, 1000, 1000, 1000 , 1000, 1000, 1000,1000,1000,1000,1000]
+	joint_data.data = [1000 for n in range(12)]
 	
 	index = self.leg_name.index(current_leg) * 3
 	for key in self.joint_name:
@@ -182,7 +182,7 @@ class DragonDataControl(Plugin):
     def data_pub(self):
         while(self._if_load):
             msg = Float64MultiArray()
-            msg.data = [0,0,0, 0, 0, 0, 0, 0,0,0,0,0]
+            msg.data = [0 for n in range(12)]
             for i in range(len(self.hip_data)):
                 if self._if_load:
                     msg.data[0] = self.hip_data[i]
