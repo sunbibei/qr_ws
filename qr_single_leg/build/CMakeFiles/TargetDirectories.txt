@@ -1,9 +1,0 @@
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/_catkin_empty_exported_target.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/clean_test_results.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/download_extra_data.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/doxygen.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/dragon_single_leg_lib.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/gtest/CMakeFiles/gtest.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/gtest/CMakeFiles/gtest_main.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/run_tests.dir
-/home/w/catkin_ws/src/dragon_single_leg/build/CMakeFiles/tests.dir

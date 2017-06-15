@@ -1,4 +1,0 @@
-PositionController:
-   joint_0: "right_front_yaw"
-   joint_1: "right_front_hip"
-   joint_2: "right_front_knee"

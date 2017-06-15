@@ -1,4 +1,0 @@
-zhangzhi  6123  5916  0 10:58 pts/16   00:00:00 sh -c rosrun rqt_launch rqt_launch
-zhangzhi  6124  6123 22 10:58 pts/16   00:00:01 python /opt/ros/indigo/lib/rqt_launch/rqt_launch
-zhangzhi  6158  5916  0 10:58 pts/16   00:00:00 sh -c ps -ef |grep rqt_launch >>/home/zhangzhi/qr_ws/src/qr_ws/qr_visualization/qr_button/src/qr_button/rqt.txt
-zhangzhi  6160  6158  0 10:58 pts/16   00:00:00 grep rqt_launch

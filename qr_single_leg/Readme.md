@@ -1,2 +1,0 @@
-启动步骤
-1.roslaunch dragon_single_leg position_joint_group_controler.launch

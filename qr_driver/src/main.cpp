@@ -5,12 +5,12 @@
  *      Author: silence
  */
 
-#include "dragon_driver/propagate/propagate.h"
-#include "dragon_driver/middleware.h"
-#include "dragon_driver/hardware/hw_unit.h"
-#include "dragon_driver/util/parser.h"
+#include "middleware/propagate/propagate.h"
+#include "middleware/middleware.h"
+#include "middleware/hardware/hw_unit.h"
+#include "middleware/util/parser.h"
 
-#include "dragon_driver/ros_wrapper.h"
+#include "middleware/ros_wrapper.h"
 
 #include <iostream>
 

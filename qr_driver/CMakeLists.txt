@@ -105,11 +105,15 @@ find_package(Boost REQUIRED COMPONENTS system)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include/dragon_driver
+  INCLUDE_DIRS include
 #  LIBRARIES dragon_driver
-  CATKIN_DEPENDS actionlib control_msgs controller_manager geometry_msgs hardware_interface roscpp sensor_msgs std_msgs trajectory_msgs
+  CATKIN_DEPENDS
+    actionlib control_msgs controller_manager geometry_msgs
+    hardware_interface roscpp sensor_msgs std_msgs trajectory_msgs
 #  DEPENDS system_lib
-  DEPENDS Boost
+  DEPENDS
+    Boost
+#    glog
 )
 
 # check c++11 / c++0x
@@ -134,15 +138,15 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  /usr/include
+#  /usr/include
 )
 
-link_directories(
-  /usr/lib
-)
+#link_directories(
+#  /usr/lib
+#)
 
-set(HW_PATH include/dragon_driver/hardware)
-set(PROPA_PATH include/dragon_driver/propagate)
+set(HW_PATH include/middleware/hardware)
+set(PROPA_PATH include/middleware/propagate)
 
 set(HW_FILES  ${HW_PATH}/hw_unit.cpp
               ${HW_PATH}/joint.cpp
@@ -156,21 +160,20 @@ set(PROPA_FILES   ${PROPA_PATH}/propagate.cpp
 )
 
 set(BIN_FILES src/main.cpp
-              include/dragon_driver/middleware.cpp
-              include/dragon_driver/ros_robothw.cpp
-              include/dragon_driver/ros_wrapper.cpp
-              include/dragon_driver/util/parser.cpp
-              include/dragon_driver/util/propagate_parser.cpp
+              include/middleware/middleware.cpp
+              include/middleware/ros_robothw.cpp
+              include/middleware/ros_wrapper.cpp
+              include/middleware/util/parser.cpp
 )
 
 ## Declare a C++ library
-# add_library(hardware_lib
-#   ${HW_FILES}
-# )
+add_library(hardware_lib
+  ${HW_FILES}
+)
 
-# add_library(propagate_lib
-#   ${PROPA_FILES}
-# )
+add_library(propagate_lib
+  ${PROPA_FILES}
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -178,34 +181,33 @@ set(BIN_FILES src/main.cpp
 # add_dependencies(qr_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(qr_driver
-#   ${BIN_FILES}
-# )
+add_executable(qr_driver
+  ${BIN_FILES}
+)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(dragon_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(hardware_lib
-#   ${catkin_LIBRARIES}
-#   glog
-# )
+target_link_libraries(hardware_lib
+  ${catkin_LIBRARIES}
+  glog
+)
 
-# target_link_libraries(propagate_lib
-#   ${catkin_LIBRARIES}
-#   glog
-#   pcanbasic
-# )
+target_link_libraries(propagate_lib
+  ${catkin_LIBRARIES}
+  glog
+#  pcanbasic
+)
 
-# target_link_libraries(qr_driver
-#   ${catkin_LIBRARIES}
-#   ${dragon_driver_lib_LIBRARIES}
-#   glog
-#   pcanbasic
-#   hardware_lib
-#   propagate_lib
-# )
+target_link_libraries(qr_driver
+  ${catkin_LIBRARIES}
+  glog
+#  pcanbasic
+  hardware_lib
+  propagate_lib
+)
 
 #############
 ## Install ##
