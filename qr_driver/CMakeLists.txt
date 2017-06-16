@@ -5,6 +5,7 @@ project(qr_driver)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  cmake_modules
   actionlib
   control_msgs
   controller_manager
@@ -18,6 +19,12 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(TinyXML REQUIRED)
+# find_package(GLOG REQUIRED)
+
+# message("-- ==> TinyXML Path: " ${TinyXML_DIR})
+# message("-- ==> TinyXML Path: " ${TinyXML_INCLUDE_DIRS})
+# message("Glog Path: " ${GLOG_INCLUDE_DIRS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
